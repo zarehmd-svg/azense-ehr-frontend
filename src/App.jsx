@@ -159,46 +159,73 @@ function App() {
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   color: "#475569",
-                  marginBottom: 4,
+                  marginBottom: 6,
                 }}
               >
                 Sample patients
               </div>
+
+              {/* NEW patient selector block */}
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#64748B",
+                  marginBottom: 8,
+                }}
+              >
+                Patients
+              </div>
+
               <div
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
                   gap: 6,
-                  maxHeight: 90,
+                  maxHeight: 120,
                   overflowY: "auto",
+                  marginBottom: 4,
                 }}
               >
-                {patients.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedPatientId(p.id)}
+                {patients.length === 0 ? (
+                  <div
                     style={{
-                      padding: "4px 8px",
-                      borderRadius: 999,
-                      border:
-                        p.id === selectedPatientId
-                          ? "1px solid rgba(37,99,235,0.9)"
-                          : "1px solid rgba(148,163,184,0.8)",
-                      background:
-                        p.id === selectedPatientId
-                          ? "linear-gradient(135deg,#2563EB,#38BDF8)"
-                          : "#F9FAFB",
-                      color:
-                        p.id === selectedPatientId ? "#F9FAFB" : "#0F172A",
-                      fontSize: 11,
-                      fontWeight: p.id === selectedPatientId ? 700 : 500,
-                      cursor: "pointer",
+                      fontSize: 12,
+                      color: "#94A3B8",
+                      padding: "8px 0",
                     }}
                   >
-                    {p.label}
-                  </button>
-                ))}
+                    No patients loaded
+                  </div>
+                ) : (
+                  patients.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setSelectedPatientId(p.id)}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: 10,
+                        border:
+                          selectedPatientId === p.id
+                            ? "1px solid #0F766E"
+                            : "1px solid #CBD5E1",
+                        background:
+                          selectedPatientId === p.id ? "#CCFBF1" : "#FFFFFF",
+                        color:
+                          selectedPatientId === p.id ? "#134E4A" : "#0F172A",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {p.label || `Patient ${p.id}`}
+                    </button>
+                  ))
+                )}
               </div>
+
               {ehr?.overview?.brief_reason && (
                 <div
                   style={{
