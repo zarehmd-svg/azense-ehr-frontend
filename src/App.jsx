@@ -720,24 +720,26 @@ useEffect(() => {
   }}
 >
               <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#475569",
-                  marginBottom: 6,
-                }}
-              >
-                Your teaching note
-              </div>
+  style={{
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "#0369A1",
+    marginBottom: 10,
+  }}
+>
+  Your teaching note
+</div>
               <div
-                style={{
-                  fontSize: 12,
-                  color: "#6B7280",
-                  marginBottom: 4,
-                }}
-              >
+  style={{
+    fontSize: 13,
+    color: "#475569",
+    marginBottom: 10,
+    maxWidth: 900,
+    lineHeight: 1.5,
+  }}
+>
                 Use this area during teaching sessions for residents to
                 hand‑write their own H&P or progress note based on the simulated
                 EHR. This text is not saved.
