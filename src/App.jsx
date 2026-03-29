@@ -738,20 +738,21 @@ useEffect(() => {
                 onChange={(e) => setOwnNote(e.target.value)}
                 placeholder="Write your own assessment and plan here..."
                 style={{
-                  width: "100%",
-                  borderRadius: 10,
-                  border: "1px solid rgba(148,163,184,0.9)",
-                  padding: 10,
-                  fontSize: 13,
-                  fontFamily:
-                    "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-                  outline: "none",
-                  background:
-                    "linear-gradient(135deg,#F9FAFB,#EEF2FF,#FFFFFF)",
-                  color: "#0F172A",
-                  resize: "vertical",
-                  minHeight: 260,
-                }}
+  width: "100%",
+  borderRadius: 16,
+  border: "1px solid rgba(191,219,254,0.95)",
+  padding: 14,
+  fontSize: 13,
+  lineHeight: 1.55,
+  fontFamily:
+    "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+  outline: "none",
+  background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
+  color: "#0F172A",
+  resize: "vertical",
+  minHeight: 300,
+  boxShadow: "inset 0 1px 2px rgba(15,23,42,0.04)",
+}}
               />
             </section>
           </div>
