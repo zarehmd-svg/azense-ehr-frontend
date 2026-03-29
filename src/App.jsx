@@ -383,18 +383,24 @@ useEffect(() => {
                               setActiveNoteType(nt.id);
                               setSelectedNoteId(null);
                             }}
-                            style={{
-                              padding: "3px 8px",
-                              borderRadius: 999,
-                              border: active
-                                ? "1px solid rgba(30,64,175,0.9)"
-                                : "1px solid rgba(148,163,184,0.8)",
-                              background: active ? "#EEF2FF" : "#FFFFFF",
-                              color: active ? "#1D4ED8" : "#111827",
-                              fontSize: 11,
-                              textAlign: "left",
-                              cursor: "pointer",
-                            }}
+                           style={{
+  padding: "8px 10px",
+  borderRadius: 12,
+  border: active
+    ? "1px solid rgba(2,132,199,0.85)"
+    : "1px solid rgba(226,232,240,0.95)",
+  background: active
+    ? "linear-gradient(135deg, #E0F2FE, #ECFEFF)"
+    : "#FFFFFF",
+  color: active ? "#075985" : "#0F172A",
+  fontSize: 11,
+  fontWeight: active ? 700 : 600,
+  textAlign: "left",
+  boxShadow: active
+    ? "0 8px 18px rgba(14,165,233,0.14)"
+    : "0 1px 2px rgba(15,23,42,0.04)",
+  cursor: "pointer",
+}}
                           >
                             {nt.label}
                           </button>
