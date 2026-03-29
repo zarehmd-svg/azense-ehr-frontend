@@ -90,7 +90,7 @@ useEffect(() => {
       style={{
         minHeight: "100vh",
         margin: 0,
-        padding: 20,
+        padding: window.innerWidth < 640 ? 10 : 20,
         boxSizing: "border-box",
         background:
           "linear-gradient(180deg, #E0F2FE 0%, #F8FCFF 35%, #EEF6FF 100%)",
@@ -107,7 +107,7 @@ useEffect(() => {
           maxWidth: 1380,
           background: "rgba(255,255,255,0.96)",
           borderRadius: 24,
-          padding: 24,
+          padding: window.innerWidth < 640 ? 14 : 24,
           boxShadow: "0 20px 60px rgba(15,23,42,0.12)",
           border: "1px solid rgba(148,163,184,0.22)",
           backdropFilter: "blur(10px)",
