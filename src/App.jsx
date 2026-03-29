@@ -194,12 +194,12 @@ useEffect(() => {
 
         {/* Two-column layout */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1.3fr)",
-            gap: 16,
-          }}
-        >
+  style={{
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr)",
+    gap: 18,
+  }}
+>
           {/* LEFT COLUMN: EHR content */}
           <div style={{ minWidth: 0 }}>
             {/* Patient list */}
