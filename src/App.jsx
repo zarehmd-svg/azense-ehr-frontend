@@ -183,14 +183,14 @@ useEffect(() => {
 
         {/* Divider */}
         <div
-          style={{
-            height: 1,
-            width: "100%",
-            background:
-              "linear-gradient(90deg, rgba(37,99,235,0) 0, rgba(37,99,235,0.9) 45, rgba(37,99,235,0) 100)",
-            marginBottom: 14,
-          }}
-        />
+  style={{
+    height: 1,
+    width: "100%",
+    background:
+      "linear-gradient(90deg, rgba(14,165,233,0) 0, rgba(14,165,233,0.85) 22%, rgba(34,211,238,0.85) 50%, rgba(14,165,233,0.85) 78%, rgba(14,165,233,0) 100%)",
+    marginBottom: 18,
+  }}
+/>
 
         {/* Two-column layout */}
         <div
@@ -203,31 +203,30 @@ useEffect(() => {
           {/* LEFT COLUMN: EHR content */}
           <div style={{ minWidth: 0 }}>
             {/* Patient list */}
-            <section style={{ marginBottom: 10 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#475569",
-                  marginBottom: 6,
-                }}
-              ></div>
+            <section
+  style={{
+    marginBottom: 14,
+    padding: 14,
+    borderRadius: 16,
+    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
+    border: "1px solid rgba(186,230,253,0.9)",
+    boxShadow: "0 10px 30px rgba(14,116,144,0.05)",
+  }}
+>
 
               {/* NEW patient selector block */}
               <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#64748B",
-                  marginBottom: 8,
-                }}
-              >
-                Patients
-              </div>
+  style={{
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "#0369A1",
+    marginBottom: 10,
+  }}
+>
+  Patients
+</div>
 
               <div
                 style={{
@@ -290,49 +289,59 @@ useEffect(() => {
             </section>
 
             {/* Top tabs */}
-            <section style={{ marginBottom: 8 }}>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 6,
-                  flexWrap: "wrap",
-                  fontSize: 11,
-                }}
-              >
-                {TOP_TABS.map((id) => {
-                  const label = {
-                    notes: "Notes",
-                    labs: "Labs",
-                    imaging: "Imaging",
-                    summary: "Summary",
-                    ekgs: "EKGs",
-                    procedures: "Procedures",
-                  }[id];
-                  const active = activeTopTab === id;
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setActiveTopTab(id)}
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: 999,
-                        border: active
-                          ? "1px solid rgba(37,99,235,0.9)"
-                          : "1px solid rgba(148,163,184,0.8)",
-                        background: active
-                          ? "linear-gradient(135deg,#2563EB,#60A5FA)"
-                          : "#EFF6FF",
-                        color: active ? "#F9FAFB" : "#1D4ED8",
-                        fontWeight: active ? 700 : 600,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+            <section style={{ marginBottom: 10 }}>
+  <div
+    style={{
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap",
+      fontSize: 11,
+      padding: 6,
+      borderRadius: 999,
+      background: "rgba(239,246,255,0.8)",
+      border: "1px solid rgba(191,219,254,0.9)",
+    }}
+  >
+    {TOP_TABS.map((id) => {
+      const label = {
+        notes: "Notes",
+        labs: "Labs",
+        imaging: "Imaging",
+        summary: "Summary",
+        ekgs: "EKGs",
+        procedures: "Procedures",
+      }[id];
+      const active = activeTopTab === id;
+      return (
+        <button
+          key={id}
+          onClick={() => setActiveTopTab(id)}
+          style={{
+            padding: "5px 12px",
+            borderRadius: 999,
+            border: active
+              ? "1px solid rgba(37,99,235,0.95)"
+              : "1px solid rgba(148,163,184,0.6)",
+            background: active
+              ? "linear-gradient(135deg,#1D4ED8,#3B82F6)"
+              : "rgba(255,255,255,0.9)",
+            color: active ? "#F9FAFB" : "#1D4ED8",
+            fontWeight: active ? 700 : 600,
+            cursor: "pointer",
+            boxShadow: active
+              ? "0 6px 18px rgba(37,99,235,0.25)"
+              : "none",
+            transition:
+              "background 150ms ease-out, box-shadow 150ms ease-out, transform 120ms ease-out",
+            transform: active ? "translateY(-1px)" : "translateY(0)",
+          }}
+        >
+          {label}
+        </button>
+      );
+    })}
+  </div>
+</section>
 
             {/* Content area per top tab */}
             <section
