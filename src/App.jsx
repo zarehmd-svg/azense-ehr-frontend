@@ -493,17 +493,19 @@ useEffect(() => {
 
                       {/* Note text */}
                       <div
-                        style={{
-                          flex: 1,
-                          borderRadius: 8,
-                          border: "1px solid rgba(148,163,184,0.8)",
-                          background: "#FFFFFF",
-                          padding: 8,
-                          overflowY: "auto",
-                          fontSize: 12,
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
+  style={{
+    flex: 1,
+    borderRadius: 16,
+    border: "1px solid rgba(191,219,254,0.95)",
+    background: "linear-gradient(180deg, #FFFFFF, #F9FCFF)",
+    padding: 14,
+    overflowY: "auto",
+    fontSize: 12,
+    whiteSpace: "pre-wrap",
+    boxShadow: "0 10px 24px rgba(15,23,42,0.04)",
+    lineHeight: 1.5,
+  }}
+>
                         {selectedNote ? (
                           <>
                             <div
