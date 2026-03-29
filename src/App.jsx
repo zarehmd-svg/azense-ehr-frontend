@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AzenseLogo from "./assets/Azense-logo.png";
+import AzenseLogo from "./assets/Azense-logo.png"; // add logo file
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -24,59 +24,64 @@ function App() {
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
 
-  useEffect(() => {
-    const loadPatients = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/ehr/patients`);
-        const text = await res.text();
-        console.log("PATIENT LIST RAW:", text);
+  // Load patient list once
+useEffect(() => {
+  const loadPatients = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/ehr/patients`);
+      const text = await res.text();
+      console.log("PATIENT LIST RAW:", text);
 
-        const json = JSON.parse(text);
-        console.log("PATIENT LIST JSON:", json);
+      const json = JSON.parse(text);
+      console.log("PATIENT LIST JSON:", json);
 
-        const list = Array.isArray(json)
-          ? json
-          : Array.isArray(json?.patients)
-          ? json.patients
-          : Array.isArray(json?.data)
-          ? json.data
-          : [];
+      const list = Array.isArray(json)
+        ? json
+        : Array.isArray(json?.patients)
+        ? json.patients
+        : Array.isArray(json?.data)
+        ? json.data
+        : [];
 
-        setPatients(list);
+      setPatients(list);
 
-        if (list.length > 0) {
-          setSelectedPatientId(list[0].id);
-        }
-      } catch (err) {
-        console.error("PATIENT LOAD ERROR:", err);
-        setPatients([]);
+      if (list.length > 0) {
+        setSelectedPatientId(list[0].id);
       }
-    };
+    } catch (err) {
+      console.error("PATIENT LOAD ERROR:", err);
+      setPatients([]);
+    }
+  };
 
-    loadPatients();
-  }, []);
+  loadPatients();
+}, []);
 
-  useEffect(() => {
-    if (!selectedPatientId) return;
+  // Load EHR for selected patient
+useEffect(() => {
+  if (!selectedPatientId) return;
 
-    const loadEhr = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/ehr/patients/${selectedPatientId}`);
-        const json = await res.json();
-        console.log("PATIENT DETAIL RESPONSE:", json);
+  const loadEhr = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/ehr/patients/${selectedPatientId}`);
+      const json = await res.json();
 
-        setEhr(json);
-        setSelectedNoteId(null);
-        setOwnNote("");
-      } catch (err) {
-        console.error("EHR LOAD ERROR:", err);
-      }
-    };
+      console.log("PATIENT DETAIL RESPONSE:", json);
 
-    loadEhr();
-  }, [selectedPatientId]);
+      setEhr(json);
+      setSelectedNoteId(null);
+      setOwnNote("");
+    } catch (err) {
+      console.error("EHR LOAD ERROR:", err);
+    }
+  };
 
-  const notesOfType = ehr?.notes?.filter((n) => n.type === activeNoteType) ?? [];
+  loadEhr();
+}, [selectedPatientId]);
+
+  const notesOfType =
+    ehr?.notes?.filter((n) => n.type === activeNoteType) ?? [];
+
   const selectedNote =
     notesOfType.find((n) => n.id === selectedNoteId) || notesOfType[0];
 
@@ -107,6 +112,7 @@ function App() {
           border: "1px solid rgba(15,23,42,0.18)",
         }}
       >
+        {/* Header */}
         <header
           style={{
             display: "flex",
@@ -133,11 +139,10 @@ function App() {
                 Azense Simulation EHR
               </div>
               <div style={{ fontSize: 12, color: "#1D4ED8" }}>
-                Read-only teaching view of sample admissions
+                Read‑only teaching view of sample admissions
               </div>
             </div>
           </div>
-
           <div
             style={{
               padding: "4px 10px",
@@ -155,6 +160,7 @@ function App() {
           </div>
         </header>
 
+        {/* Divider */}
         <div
           style={{
             height: 1,
@@ -165,6 +171,7 @@ function App() {
           }}
         />
 
+        {/* Two-column layout */}
         <div
           style={{
             display: "grid",
@@ -172,8 +179,24 @@ function App() {
             gap: 16,
           }}
         >
+          {/* LEFT COLUMN: EHR content */}
           <div style={{ minWidth: 0 }}>
+            {/* Patient list */}
             <section style={{ marginBottom: 10 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#475569",
+                  marginBottom: 6,
+                }}
+              >
+                
+              </div>
+
+              {/* NEW patient selector block */}
               <div
                 style={{
                   fontSize: 11,
@@ -247,6 +270,7 @@ function App() {
               )}
             </section>
 
+            {/* Top tabs */}
             <section style={{ marginBottom: 8 }}>
               <div
                 style={{
@@ -265,9 +289,7 @@ function App() {
                     ekgs: "EKGs",
                     procedures: "Procedures",
                   }[id];
-
                   const active = activeTopTab === id;
-
                   return (
                     <button
                       key={id}
@@ -293,6 +315,7 @@ function App() {
               </div>
             </section>
 
+            {/* Content area per top tab */}
             <section
               style={{
                 marginTop: 4,
@@ -305,6 +328,7 @@ function App() {
             >
               {activeTopTab === "notes" && (
                 <div style={{ display: "flex", gap: 10 }}>
+                  {/* Note sub-tabs */}
                   <div style={{ width: 130 }}>
                     <div
                       style={{
@@ -316,7 +340,6 @@ function App() {
                     >
                       Note types
                     </div>
-
                     <div
                       style={{
                         display: "flex",
@@ -326,7 +349,6 @@ function App() {
                     >
                       {NOTE_TYPES.map((nt) => {
                         const active = nt.id === activeNoteType;
-
                         return (
                           <button
                             key={nt.id}
@@ -354,6 +376,7 @@ function App() {
                     </div>
                   </div>
 
+                  {/* Note list + text */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
@@ -365,7 +388,6 @@ function App() {
                     >
                       {activeNoteType.toUpperCase()} notes
                     </div>
-
                     <div
                       style={{
                         display: "flex",
@@ -373,6 +395,7 @@ function App() {
                         height: 220,
                       }}
                     >
+                      {/* Note list */}
                       <div
                         style={{
                           width: 160,
@@ -393,14 +416,14 @@ function App() {
                             No notes of this type.
                           </div>
                         )}
-
                         {notesOfType.map((n) => (
                           <div
                             key={n.id}
                             onClick={() => setSelectedNoteId(n.id)}
                             style={{
                               padding: "5px 7px",
-                              borderBottom: "1px solid rgba(226,232,240,0.9)",
+                              borderBottom:
+                                "1px solid rgba(226,232,240,0.9)",
                               cursor: "pointer",
                               background:
                                 selectedNote?.id === n.id
@@ -431,6 +454,7 @@ function App() {
                         ))}
                       </div>
 
+                      {/* Note text */}
                       <div
                         style={{
                           flex: 1,
@@ -481,10 +505,18 @@ function App() {
                     >
                       <thead>
                         <tr style={{ background: "#E5E7EB" }}>
-                          <th style={{ padding: 4, textAlign: "left" }}>Time</th>
-                          <th style={{ padding: 4, textAlign: "left" }}>Test</th>
-                          <th style={{ padding: 4, textAlign: "left" }}>Value</th>
-                          <th style={{ padding: 4, textAlign: "left" }}>Normal</th>
+                          <th style={{ padding: 4, textAlign: "left" }}>
+                            Time
+                          </th>
+                          <th style={{ padding: 4, textAlign: "left" }}>
+                            Test
+                          </th>
+                          <th style={{ padding: 4, textAlign: "left" }}>
+                            Value
+                          </th>
+                          <th style={{ padding: 4, textAlign: "left" }}>
+                            Normal
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -493,7 +525,8 @@ function App() {
                             key={idx}
                             style={{
                               borderTop: "1px solid #E5E7EB",
-                              background: idx % 2 === 0 ? "#FFFFFF" : "#F9FAFB",
+                              background:
+                                idx % 2 === 0 ? "#FFFFFF" : "#F9FAFB",
                             }}
                           >
                             <td style={{ padding: 4 }}>{lab.timestamp}</td>
@@ -502,7 +535,9 @@ function App() {
                               {lab.value}
                               {lab.unit ? ` ${lab.unit}` : ""}
                             </td>
-                            <td style={{ padding: 4 }}>{lab.normal_range || ""}</td>
+                            <td style={{ padding: 4 }}>
+                              {lab.normal_range || ""}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -518,7 +553,12 @@ function App() {
               {activeTopTab === "imaging" && (
                 <div style={{ fontSize: 12 }}>
                   {ehr?.imaging?.length ? (
-                    <ul style={{ margin: 0, paddingLeft: 16 }}>
+                    <ul
+                      style={{
+                        margin: 0,
+                        paddingLeft: 16,
+                      }}
+                    >
                       {ehr.imaging.map((img) => (
                         <li key={img.id} style={{ marginBottom: 4 }}>
                           <div
@@ -530,7 +570,13 @@ function App() {
                             {img.modality} {img.body_part}{" "}
                             {img.timestamp && `· ${img.timestamp}`}
                           </div>
-                          <div style={{ color: "#111827" }}>{img.impression}</div>
+                          <div
+                            style={{
+                              color: "#111827",
+                            }}
+                          >
+                            {img.impression}
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -613,6 +659,7 @@ function App() {
             </section>
           </div>
 
+          {/* RIGHT COLUMN: blank note area for residents */}
           <div style={{ minWidth: 0 }}>
             <section>
               <div
@@ -627,7 +674,6 @@ function App() {
               >
                 Your teaching note
               </div>
-
               <div
                 style={{
                   fontSize: 12,
@@ -635,11 +681,10 @@ function App() {
                   marginBottom: 4,
                 }}
               >
-                Use this area during teaching sessions for residents to hand-write
-                their own H&P or progress note based on the simulated EHR. This
-                text is not saved.
+                Use this area during teaching sessions for residents to
+                hand‑write their own H&P or progress note based on the simulated
+                EHR. This text is not saved.
               </div>
-
               <textarea
                 rows={18}
                 value={ownNote}
