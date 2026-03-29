@@ -430,15 +430,16 @@ useEffect(() => {
                     >
                       {/* Note list */}
                       <div
-                        style={{
-                          width: 160,
-                          borderRadius: 8,
-                          border: "1px solid rgba(148,163,184,0.8)",
-                          background: "#FFFFFF",
-                          overflowY: "auto",
-                          fontSize: 11,
-                        }}
-                      >
+  style={{
+    width: 180,
+    borderRadius: 14,
+    border: "1px solid rgba(191,219,254,0.95)",
+    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
+    overflowY: "auto",
+    fontSize: 11,
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+  }}
+>
                         {notesOfType.length === 0 && (
                           <div
                             style={{
