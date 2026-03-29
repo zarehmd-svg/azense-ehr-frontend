@@ -317,24 +317,21 @@ useEffect(() => {
           key={id}
           onClick={() => setActiveTopTab(id)}
           style={{
-            padding: "5px 12px",
-            borderRadius: 999,
-            border: active
-              ? "1px solid rgba(37,99,235,0.95)"
-              : "1px solid rgba(148,163,184,0.6)",
-            background: active
-              ? "linear-gradient(135deg,#1D4ED8,#3B82F6)"
-              : "rgba(255,255,255,0.9)",
-            color: active ? "#F9FAFB" : "#1D4ED8",
-            fontWeight: active ? 700 : 600,
-            cursor: "pointer",
-            boxShadow: active
-              ? "0 6px 18px rgba(37,99,235,0.25)"
-              : "none",
-            transition:
-              "background 150ms ease-out, box-shadow 150ms ease-out, transform 120ms ease-out",
-            transform: active ? "translateY(-1px)" : "translateY(0)",
-          }}
+  padding: "7px 12px",
+  borderRadius: 999,
+  border: active
+    ? "1px solid rgba(2,132,199,0.9)"
+    : "1px solid rgba(186,230,253,0.95)",
+  background: active
+    ? "linear-gradient(135deg,#0284C7,#22D3EE)"
+    : "#FFFFFF",
+  color: active ? "#F8FAFC" : "#0369A1",
+  fontWeight: active ? 700 : 600,
+  boxShadow: active
+    ? "0 8px 18px rgba(14,165,233,0.22)"
+    : "0 1px 2px rgba(15,23,42,0.04)",
+  cursor: "pointer",
+}}
         >
           {label}
         </button>
