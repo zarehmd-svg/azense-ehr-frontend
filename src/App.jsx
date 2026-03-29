@@ -700,7 +700,15 @@ useEffect(() => {
 
           {/* RIGHT COLUMN: blank note area for residents */}
           <div style={{ minWidth: 0 }}>
-            <section>
+            <section
+  style={{
+    padding: 14,
+    borderRadius: 18,
+    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
+    border: "1px solid rgba(186,230,253,0.95)",
+    boxShadow: "0 14px 34px rgba(14,116,144,0.06)",
+  }}
+>
               <div
                 style={{
                   fontSize: 11,
