@@ -357,13 +357,14 @@ useEffect(() => {
                   {/* Note sub-tabs */}
                   <div style={{ width: 130 }}>
                     <div
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#4B5563",
-                        marginBottom: 4,
-                      }}
-                    >
+  style={{
+    width: 140,
+    padding: 10,
+    borderRadius: 14,
+    background: "#F8FBFF",
+    border: "1px solid rgba(191,219,254,0.9)",
+  }}
+>
                       Note types
                     </div>
                     <div
