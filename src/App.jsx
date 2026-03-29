@@ -197,7 +197,7 @@ useEffect(() => {
   style={{
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr)",
-    gap: 18,
+    gap: 24,
   }}
 >
           {/* LEFT COLUMN: EHR content */}
