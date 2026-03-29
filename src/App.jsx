@@ -455,15 +455,18 @@ useEffect(() => {
                             key={n.id}
                             onClick={() => setSelectedNoteId(n.id)}
                             style={{
-                              padding: "5px 7px",
-                              borderBottom:
-                                "1px solid rgba(226,232,240,0.9)",
-                              cursor: "pointer",
-                              background:
-                                selectedNote?.id === n.id
-                                  ? "rgba(191,219,254,0.7)"
-                                  : "transparent",
-                            }}
+  padding: "9px 10px",
+  borderBottom: "1px solid rgba(226,232,240,0.9)",
+  cursor: "pointer",
+  background:
+    selectedNote?.id === n.id
+      ? "linear-gradient(135deg, rgba(224,242,254,0.95), rgba(236,254,255,0.95))"
+      : "transparent",
+  borderLeft:
+    selectedNote?.id === n.id
+      ? "3px solid #0EA5E9"
+      : "3px solid transparent",
+}}
                           >
                             <div
                               style={{
