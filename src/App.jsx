@@ -29,9 +29,11 @@ useEffect(() => {
   const loadPatients = async () => {
     try {
       const res = await fetch(`${API_BASE}/ehr/patients`);
-      const json = await res.json();
+      const text = await res.text();
+      console.log("PATIENT LIST RAW:", text);
 
-      console.log("PATIENT LIST RESPONSE:", json);
+      const json = JSON.parse(text);
+      console.log("PATIENT LIST JSON:", json);
 
       const list = Array.isArray(json)
         ? json
