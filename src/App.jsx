@@ -85,33 +85,35 @@ useEffect(() => {
   const selectedNote =
     notesOfType.find((n) => n.id === selectedNoteId) || notesOfType[0];
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        margin: 0,
-        padding: 24,
-        boxSizing: "border-box",
-        background:
-          "radial-gradient(circle at top, #E0F2FE 0, #FFFFFF 55%, #E5E7EB 100%)",
-        fontFamily:
-          "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-      }}
-    >
+  <div
+  style={{
+    minHeight: "100vh",
+    margin: 0,
+    padding: 20,
+    boxSizing: "border-box",
+    background:
+      "linear-gradient(180deg, #E0F2FE 0%, #F8FCFF 35%, #EEF6FF 100%)",
+    fontFamily:
+      "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+  }}
+>
+    
       <div
-        style={{
-          width: "100%",
-          maxWidth: 1280,
-          background: "rgba(255,255,255,0.98)",
-          borderRadius: 20,
-          padding: 20,
-          boxShadow: "0 26px 70px rgba(15,23,42,0.35)",
-          border: "1px solid rgba(15,23,42,0.18)",
-        }}
-      >
+  style={{
+    width: "100%",
+    maxWidth: 1380,
+    background: "rgba(255,255,255,0.96)",
+    borderRadius: 24,
+    padding: 24,
+    boxShadow: "0 20px 60px rgba(15,23,42,0.12)",
+    border: "1px solid rgba(148,163,184,0.22)",
+    backdropFilter: "blur(10px)",
+  }}
+>
+    
         {/* Header */}
         <header
           style={{
@@ -711,7 +713,7 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  );
+  ;
 }
 
 export default App;
