@@ -427,12 +427,12 @@ useEffect(() => {
                       {activeNoteType.toUpperCase()} notes
                     </div>
                     <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        height: 220,
-                      }}
-                    >
+  style={{
+    display: "flex",
+    gap: 10,
+    height: 400,
+  }}
+>
                       {/* Note list */}
                       <div
   style={{
