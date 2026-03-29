@@ -342,15 +342,16 @@ useEffect(() => {
 
             {/* Content area per top tab */}
             <section
-              style={{
-                marginTop: 4,
-                padding: 10,
-                borderRadius: 10,
-                border: "1px solid rgba(148,163,184,0.7)",
-                background: "#F9FAFB",
-                minHeight: 260,
-              }}
-            >
+  style={{
+    marginTop: 6,
+    padding: 14,
+    borderRadius: 18,
+    border: "1px solid rgba(186,230,253,0.95)",
+    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
+    boxShadow: "0 14px 34px rgba(14,116,144,0.06)",
+    minHeight: 300,
+  }}
+>
               {activeTopTab === "notes" && (
                 <div style={{ display: "flex", gap: 10 }}>
                   {/* Note sub-tabs */}
