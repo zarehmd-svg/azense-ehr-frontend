@@ -358,7 +358,13 @@ useEffect(() => {
   }}
 >
               {activeTopTab === "notes" && (
-                <div style={{ display: "flex", gap: 10 }}>
+                <div
+  style={{
+    display: "flex",
+    gap: 10,
+    flexDirection: window.innerWidth < 768 ? "column" : "row",
+  }}
+>
                   {/* Note sub-tabs */}
                   <div style={{ width: 130 }}>
                     <div
@@ -430,7 +436,8 @@ useEffect(() => {
   style={{
     display: "flex",
     gap: 10,
-    height: 400,
+    height: window.innerWidth < 768 ? "auto" : 400,
+    flexDirection: window.innerWidth < 768 ? "column" : "row",
   }}
 >
                       {/* Note list */}
