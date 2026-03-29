@@ -115,51 +115,71 @@ useEffect(() => {
       >
         {/* Header */}
         <header
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 14,
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img
-              src={AzenseLogo}
-              alt="AZense logo"
-              style={{ height: 52, width: "auto", display: "block" }}
-            />
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "#0F172A",
-                }}
-              >
-                Azense Simulation EHR
-              </div>
-              <div style={{ fontSize: 12, color: "#1D4ED8" }}>
-                Read‑only teaching view of sample admissions
-              </div>
-            </div>
-          </div>
-          <div
-            style={{
-              padding: "4px 10px",
-              borderRadius: 999,
-              border: "1px solid rgba(37,99,235,0.7)",
-              background:
-                "linear-gradient(135deg, rgba(37,99,235,0.16), rgba(56,189,248,0.10))",
-              fontSize: 11,
-              fontWeight: 600,
-              color: "#1D4ED8",
-              whiteSpace: "nowrap",
-            }}
-          >
-            View only · No note writing in EHR
-          </div>
-        </header>
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
+    marginBottom: 18,
+    padding: "4px 2px 10px 2px",
+  }}
+>
+  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+    <div
+      style={{
+        padding: 10,
+        borderRadius: 16,
+        background: "linear-gradient(135deg, #EFF6FF, #ECFEFF)",
+        border: "1px solid rgba(125,211,252,0.55)",
+        boxShadow: "0 8px 24px rgba(14,116,144,0.10)",
+      }}
+    >
+      <img
+        src={AzenseLogo}
+        alt="AZense logo"
+        style={{ height: 40, width: "auto", display: "block" }}
+      />
+    </div>
+
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 800,
+          color: "#0F172A",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        Azense Simulation EHR
+      </div>
+      <div
+        style={{
+          fontSize: 13,
+          color: "#0369A1",
+          fontWeight: 500,
+        }}
+      >
+        Read-only teaching view of sample admissions
+      </div>
+    </div>
+  </div>
+
+  <div
+    style={{
+      padding: "8px 14px",
+      borderRadius: 999,
+      border: "1px solid rgba(14,165,233,0.35)",
+      background: "linear-gradient(135deg, #F0F9FF, #ECFEFF)",
+      fontSize: 12,
+      fontWeight: 700,
+      color: "#0369A1",
+      whiteSpace: "nowrap",
+      boxShadow: "0 6px 20px rgba(14,165,233,0.10)",
+    }}
+  >
+    View only · No note writing in EHR
+  </div>
+</header>
 
         {/* Divider */}
         <div
