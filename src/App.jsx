@@ -201,7 +201,12 @@ useEffect(() => {
   }}
 >
           {/* LEFT COLUMN: EHR content */}
-          <div style={{ minWidth: 0 }}>
+          <div
+  style={{
+    minWidth: 0,
+    maxWidth: "100%",
+  }}
+>
             {/* Patient list */}
             <section
   style={{
@@ -699,7 +704,12 @@ useEffect(() => {
           </div>
 
           {/* RIGHT COLUMN: blank note area for residents */}
-          <div style={{ minWidth: 0 }}>
+        <div
+  style={{
+    minWidth: 0,
+    width: "100%",
+  }}
+>
             <section
   style={{
     padding: 14,
