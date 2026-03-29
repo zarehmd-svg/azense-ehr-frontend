@@ -25,28 +25,57 @@ function App() {
   const [ownNote, setOwnNote] = useState("");
 
   // Load patient list once
-  useEffect(() => {
-    const loadPatients = async () => {
+useEffect(() => {
+  const loadPatients = async () => {
+    try {
       const res = await fetch(`${API_BASE}/ehr/patients`);
       const json = await res.json();
-      setPatients(json);
-      if (json.length > 0) setSelectedPatientId(json[0].id);
-    };
-    loadPatients().catch(console.error);
-  }, []);
+
+      console.log("PATIENT LIST RESPONSE:", json);
+
+      const list = Array.isArray(json)
+        ? json
+        : Array.isArray(json?.patients)
+        ? json.patients
+        : Array.isArray(json?.data)
+        ? json.data
+        : [];
+
+      setPatients(list);
+
+      if (list.length > 0) {
+        setSelectedPatientId(list[0].id);
+      }
+    } catch (err) {
+      console.error("PATIENT LOAD ERROR:", err);
+      setPatients([]);
+    }
+  };
+
+  loadPatients();
+}, []);
 
   // Load EHR for selected patient
-  useEffect(() => {
-    if (!selectedPatientId) return;
-    const loadEhr = async () => {
+useEffect(() => {
+  if (!selectedPatientId) return;
+
+  const loadEhr = async () => {
+    try {
       const res = await fetch(`${API_BASE}/ehr/patients/${selectedPatientId}`);
       const json = await res.json();
+
+      console.log("PATIENT DETAIL RESPONSE:", json);
+
       setEhr(json);
       setSelectedNoteId(null);
       setOwnNote("");
-    };
-    loadEhr().catch(console.error);
-  }, [selectedPatientId]);
+    } catch (err) {
+      console.error("EHR LOAD ERROR:", err);
+    }
+  };
+
+  loadEhr();
+}, [selectedPatientId]);
 
   const notesOfType =
     ehr?.notes?.filter((n) => n.type === activeNoteType) ?? [];
@@ -162,7 +191,7 @@ function App() {
                   marginBottom: 6,
                 }}
               >
-                Sample patients
+                
               </div>
 
               {/* NEW patient selector block */}
