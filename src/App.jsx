@@ -234,15 +234,15 @@ useEffect(() => {
 </div>
 
               <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 6,
-                  maxHeight: 120,
-                  overflowY: "auto",
-                  marginBottom: 4,
-                }}
-              >
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    maxHeight: window.innerWidth < 640 ? 160 : 120,
+    overflowY: "auto",
+    marginBottom: 4,
+  }}
+>
                 {patients.length === 0 ? (
                   <div
                     style={{
@@ -259,20 +259,20 @@ useEffect(() => {
                       key={p.id}
                       onClick={() => setSelectedPatientId(p.id)}
                       style={{
-                        padding: "8px 10px",
-                        borderRadius: 10,
-                        border:
-                          selectedPatientId === p.id
-                            ? "1px solid #0F766E"
-                            : "1px solid #CBD5E1",
-                        background:
-                          selectedPatientId === p.id ? "#CCFBF1" : "#FFFFFF",
-                        color:
-                          selectedPatientId === p.id ? "#134E4A" : "#0F172A",
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
+  padding: window.innerWidth < 640 ? "10px 12px" : "8px 10px",
+  borderRadius: 10,
+  border:
+    selectedPatientId === p.id
+      ? "1px solid #0F766E"
+      : "1px solid #CBD5E1",
+  background:
+    selectedPatientId === p.id ? "#CCFBF1" : "#FFFFFF",
+  color:
+    selectedPatientId === p.id ? "#134E4A" : "#0F172A",
+  fontSize: 12,
+  fontWeight: 600,
+  cursor: "pointer",
+}}
                     >
                       {p.label || `Patient ${p.id}`}
                     </button>
