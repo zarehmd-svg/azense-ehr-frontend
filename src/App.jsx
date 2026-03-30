@@ -137,7 +137,7 @@ useEffect(() => {
       <img
         src={AzenseLogo}
         alt="AZense logo"
-        style={{ height: 40, width: "auto", display: "block" }}
+        style={{ height: 64, width: "auto", display: "block" }}
       />
     </div>
 
