@@ -23,6 +23,45 @@ const NOTE_TYPES = [
   { id: "discharge", label: "Discharge" },
 ];
 
+/* ── lab category mapping ──────────────────────────────── */
+const LAB_CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "cbc", label: "CBC" },
+  { id: "bmp", label: "BMP" },
+  { id: "hepatic", label: "Hepatic" },
+  { id: "abg", label: "ABG" },
+  { id: "coags", label: "Coags" },
+  { id: "cardiac", label: "Cardiac" },
+  { id: "inflammatory", label: "Inflammatory" },
+  { id: "ua", label: "Urinalysis" },
+  { id: "micro", label: "Micro" },
+  { id: "other", label: "Other" },
+];
+
+function categorizeLab(name) {
+  const n = (name || "").toLowerCase();
+  // CBC
+  if (/^(wbc|hemoglobin|hematocrit|platelets|mcv|mch[^c]?$|mchc|rdw|neutrophil|band|lymphocyte|monocyte|eosinophil|basophil)/i.test(n)) return "cbc";
+  // ABG
+  if (/^abg/i.test(n)) return "abg";
+  // Hepatic
+  if (/^(ast|alt|alp|alkaline|bilirubin|direct bili|total bili|albumin|total protein|ggt)/i.test(n)) return "hepatic";
+  // Coags
+  if (/^(pt\/inr|inr|prothrombin|aptt|ptt)/i.test(n)) return "coags";
+  // Cardiac
+  if (/^(troponin|bnp|pro.?bnp|ck.?mb|ldh)/i.test(n)) return "cardiac";
+  // Inflammatory
+  if (/^(c-reactive|crp|esr|erythrocyte sed|procalcitonin|lactate|ferritin)/i.test(n)) return "inflammatory";
+  // UA
+  if (/^urinalysis/i.test(n)) return "ua";
+  // Micro
+  if (/^(blood culture|urine culture|sputum|wound culture)/i.test(n)) return "micro";
+  // BMP / CMP (sodium, potassium, chloride, CO2, BUN, creatinine, glucose, calcium, magnesium, phosphorus, eGFR)
+  if (/^(sodium|potassium|chloride|co2|bicarbonate|bun|creatinine|glucose|calcium|magnesium|phosphorus|egfr)/i.test(n)) return "bmp";
+  // Lipids, thyroid, iron, HbA1c, etc.
+  return "other";
+}
+
 /* ── shared style tokens ────────────────────────────────── */
 const colors = {
   navy: "#0F172A",
@@ -48,6 +87,7 @@ function App() {
   const [activeNoteType, setActiveNoteType] = useState("hp");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
+  const [activeLabCategory, setActiveLabCategory] = useState("all");
 
   /* ── load patient list ── */
   useEffect(() => {
@@ -83,6 +123,7 @@ function App() {
         setEhr(json);
         setSelectedNoteId(null);
         setOwnNote("");
+        setActiveLabCategory("all");
       } catch (err) {
         console.error("EHR load error:", err);
       }
@@ -526,92 +567,162 @@ function App() {
             {activeTopTab === "labs" && (
               <div>
                 {ehr?.labs?.length ? (
-                  <div style={{ overflowX: "auto", width: "100%" }}>
-                    <table
+                  <>
+                    {/* Lab category filter chips */}
+                    <div
                       style={{
-                        width: "100%",
-                        borderCollapse: "separate",
-                        borderSpacing: 0,
-                        fontSize: 13,
+                        display: "flex",
+                        gap: 5,
+                        flexWrap: "wrap",
+                        marginBottom: 14,
+                        padding: "4px 0",
                       }}
                     >
-                      <thead>
-                        <tr>
-                          {["Time", "Test", "Value", "Normal Range"].map(
-                            (h) => (
-                              <th
-                                key={h}
-                                style={{
-                                  padding: "10px 14px",
-                                  textAlign: "left",
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  letterSpacing: "0.05em",
-                                  textTransform: "uppercase",
-                                  color: "#64748B",
-                                  background: "#F8FAFC",
-                                  borderBottom: "2px solid #E2E8F0",
-                                }}
-                              >
-                                {h}
-                              </th>
-                            )
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ehr.labs.map((lab, idx) => (
-                          <tr
-                            key={idx}
+                      {LAB_CATEGORIES.filter(
+                        (cat) =>
+                          cat.id === "all" ||
+                          ehr.labs.some(
+                            (l) => categorizeLab(l.name) === cat.id
+                          )
+                      ).map((cat) => {
+                        const active = activeLabCategory === cat.id;
+                        const count =
+                          cat.id === "all"
+                            ? ehr.labs.length
+                            : ehr.labs.filter(
+                                (l) => categorizeLab(l.name) === cat.id
+                              ).length;
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => setActiveLabCategory(cat.id)}
                             style={{
-                              background:
-                                idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
+                              padding: "5px 12px",
+                              borderRadius: 8,
+                              border: active
+                                ? "1.5px solid #0284C7"
+                                : "1px solid #E2E8F0",
+                              background: active
+                                ? "linear-gradient(135deg, #E0F2FE, #ECFEFF)"
+                                : "#FFFFFF",
+                              color: active ? "#075985" : "#475569",
+                              fontSize: 11,
+                              fontWeight: active ? 700 : 500,
+                              cursor: "pointer",
+                              transition: "all 0.12s ease",
+                              boxShadow: active
+                                ? "0 2px 6px rgba(2,132,199,0.12)"
+                                : "0 1px 2px rgba(15,23,42,0.04)",
                             }}
                           >
-                            <td
+                            {cat.label}
+                            <span
                               style={{
-                                padding: "9px 14px",
-                                borderBottom: "1px solid #F1F5F9",
-                                color: "#64748B",
-                                fontSize: 12,
+                                marginLeft: 4,
+                                fontSize: 10,
+                                opacity: 0.7,
                               }}
                             >
-                              {lab.timestamp}
-                            </td>
-                            <td
-                              style={{
-                                padding: "9px 14px",
-                                borderBottom: "1px solid #F1F5F9",
-                                fontWeight: 600,
-                                color: "#0F172A",
-                              }}
-                            >
-                              {lab.name}
-                            </td>
-                            <td
-                              style={{
-                                padding: "9px 14px",
-                                borderBottom: "1px solid #F1F5F9",
-                                color: "#0F172A",
-                              }}
-                            >
-                              {lab.value}
-                              {lab.unit ? ` ${lab.unit}` : ""}
-                            </td>
-                            <td
-                              style={{
-                                padding: "9px 14px",
-                                borderBottom: "1px solid #F1F5F9",
-                                color: "#64748B",
-                              }}
-                            >
-                              {lab.normal_range || "—"}
-                            </td>
+                              ({count})
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div style={{ overflowX: "auto", width: "100%" }}>
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse: "separate",
+                          borderSpacing: 0,
+                          fontSize: 13,
+                        }}
+                      >
+                        <thead>
+                          <tr>
+                            {["Time", "Test", "Value", "Normal Range"].map(
+                              (h) => (
+                                <th
+                                  key={h}
+                                  style={{
+                                    padding: "10px 14px",
+                                    textAlign: "left",
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    letterSpacing: "0.05em",
+                                    textTransform: "uppercase",
+                                    color: "#64748B",
+                                    background: "#F8FAFC",
+                                    borderBottom: "2px solid #E2E8F0",
+                                  }}
+                                >
+                                  {h}
+                                </th>
+                              )
+                            )}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {ehr.labs
+                            .filter(
+                              (lab) =>
+                                activeLabCategory === "all" ||
+                                categorizeLab(lab.name) === activeLabCategory
+                            )
+                            .map((lab, idx) => (
+                              <tr
+                                key={idx}
+                                style={{
+                                  background:
+                                    idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
+                                }}
+                              >
+                                <td
+                                  style={{
+                                    padding: "9px 14px",
+                                    borderBottom: "1px solid #F1F5F9",
+                                    color: "#64748B",
+                                    fontSize: 12,
+                                  }}
+                                >
+                                  {lab.timestamp}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "9px 14px",
+                                    borderBottom: "1px solid #F1F5F9",
+                                    fontWeight: 600,
+                                    color: "#0F172A",
+                                  }}
+                                >
+                                  {lab.name}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "9px 14px",
+                                    borderBottom: "1px solid #F1F5F9",
+                                    color: "#0F172A",
+                                  }}
+                                >
+                                  {lab.value}
+                                  {lab.unit ? ` ${lab.unit}` : ""}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "9px 14px",
+                                    borderBottom: "1px solid #F1F5F9",
+                                    color: "#64748B",
+                                  }}
+                                >
+                                  {lab.normal_range || "—"}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 ) : (
                   <EmptyState text="No structured labs for this case." />
                 )}
