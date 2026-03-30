@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import AzenseLogo from "./assets/Azense-logo.png"; // add logo file
+import AzenseLogo from "./assets/Azense-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 const TOP_TABS = ["notes", "labs", "imaging", "summary", "ekgs", "procedures"];
+const TOP_TAB_LABELS = {
+  notes: "Notes",
+  labs: "Labs",
+  imaging: "Imaging",
+  summary: "Summary",
+  ekgs: "EKGs",
+  procedures: "Procedures",
+};
 
 const NOTE_TYPES = [
   { id: "triage", label: "Triage" },
@@ -15,6 +23,23 @@ const NOTE_TYPES = [
   { id: "discharge", label: "Discharge" },
 ];
 
+/* ── shared style tokens ────────────────────────────────── */
+const colors = {
+  navy: "#0F172A",
+  teal: "#0369A1",
+  tealLight: "#0EA5E9",
+  tealBg: "#E0F2FE",
+  tealBorder: "rgba(14,165,233,0.35)",
+  cardBg: "rgba(255,255,255,0.97)",
+  sectionBg: "linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%)",
+  sectionBorder: "rgba(186,230,253,0.85)",
+  subtleShadow: "0 4px 16px rgba(15,23,42,0.06)",
+  cardShadow: "0 20px 50px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.04)",
+};
+
+const inputFocus =
+  "1px solid rgba(14,165,233,0.6)";
+
 function App() {
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
@@ -24,76 +49,61 @@ function App() {
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
 
-  // Load patient list once
-useEffect(() => {
-  const loadPatients = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/ehr/patients`);
-      const text = await res.text();
-      console.log("PATIENT LIST RAW:", text);
-
-      const json = JSON.parse(text);
-      console.log("PATIENT LIST JSON:", json);
-
-      const list = Array.isArray(json)
-        ? json
-        : Array.isArray(json?.patients)
-        ? json.patients
-        : Array.isArray(json?.data)
-        ? json.data
-        : [];
-
-      setPatients(list);
-
-      if (list.length > 0) {
-        setSelectedPatientId(list[0].id);
+  /* ── load patient list ── */
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/ehr/patients`);
+        const json = await res.json();
+        const list = Array.isArray(json)
+          ? json
+          : Array.isArray(json?.patients)
+          ? json.patients
+          : Array.isArray(json?.data)
+          ? json.data
+          : [];
+        setPatients(list);
+        if (list.length > 0) setSelectedPatientId(list[0].id);
+      } catch (err) {
+        console.error("Patient load error:", err);
+        setPatients([]);
       }
-    } catch (err) {
-      console.error("PATIENT LOAD ERROR:", err);
-      setPatients([]);
-    }
-  };
+    })();
+  }, []);
 
-  loadPatients();
-}, []);
-
-  // Load EHR for selected patient
-useEffect(() => {
-  if (!selectedPatientId) return;
-
-  const loadEhr = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/ehr/patients/${selectedPatientId}`);
-      const json = await res.json();
-
-      console.log("PATIENT DETAIL RESPONSE:", json);
-
-      setEhr(json);
-      setSelectedNoteId(null);
-      setOwnNote("");
-    } catch (err) {
-      console.error("EHR LOAD ERROR:", err);
-    }
-  };
-
-  loadEhr();
-}, [selectedPatientId]);
+  /* ── load EHR for selected patient ── */
+  useEffect(() => {
+    if (!selectedPatientId) return;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE}/ehr/patients/${selectedPatientId}`
+        );
+        const json = await res.json();
+        setEhr(json);
+        setSelectedNoteId(null);
+        setOwnNote("");
+      } catch (err) {
+        console.error("EHR load error:", err);
+      }
+    })();
+  }, [selectedPatientId]);
 
   const notesOfType =
     ehr?.notes?.filter((n) => n.type === activeNoteType) ?? [];
-
-    const selectedNote =
+  const selectedNote =
     notesOfType.find((n) => n.id === selectedNoteId) || notesOfType[0];
 
+  /* ══════════════════════════════════════════════════════════
+     RENDER
+     ══════════════════════════════════════════════════════════ */
   return (
     <div
       style={{
         minHeight: "100vh",
-        margin: 0,
-        padding: window.innerWidth < 640 ? 10 : 20,
-        boxSizing: "border-box",
+        padding: "24px 16px",
         background:
-          "linear-gradient(180deg, #E0F2FE 0%, #F8FCFF 35%, #EEF6FF 100%)",
+          "linear-gradient(165deg, #E0F2FE 0%, #F0F7FF 30%, #EEF2FF 60%, #F8FAFC 100%)",
         fontFamily:
           "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
         display: "flex",
@@ -101,390 +111,349 @@ useEffect(() => {
         alignItems: "flex-start",
       }}
     >
+      {/* ── main card ── */}
       <div
         style={{
           width: "100%",
-          maxWidth: 1380,
-          background: "rgba(255,255,255,0.96)",
-          borderRadius: 24,
-          padding: window.innerWidth < 640 ? 14 : 24,
-          boxShadow: "0 20px 60px rgba(15,23,42,0.12)",
-          border: "1px solid rgba(148,163,184,0.22)",
-          backdropFilter: "blur(10px)",
+          maxWidth: 1400,
+          background: colors.cardBg,
+          borderRadius: 20,
+          padding: "28px 28px 32px",
+          boxShadow: colors.cardShadow,
+          border: "1px solid rgba(255,255,255,0.6)",
+          backdropFilter: "blur(12px)",
         }}
       >
-        {/* Header */}
+        {/* ── HEADER ── */}
         <header
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-    marginBottom: 18,
-    padding: "4px 2px 10px 2px",
-  }}
->
-  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-    <div
-      style={{
-        padding: 10,
-        borderRadius: 16,
-        background: "linear-gradient(135deg, #EFF6FF, #ECFEFF)",
-        border: "1px solid rgba(125,211,252,0.55)",
-        boxShadow: "0 8px 24px rgba(14,116,144,0.10)",
-      }}
-    >
-      <img
-        src={AzenseLogo}
-        alt="AZense logo"
-        style={{ height: 64, width: "auto", display: "block" }}
-      />
-    </div>
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            marginBottom: 20,
+            paddingBottom: 20,
+            borderBottom: "1px solid rgba(148,163,184,0.15)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <img
+              src={AzenseLogo}
+              alt="AZense logo"
+              style={{
+                height: 52,
+                width: "auto",
+                filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
+              }}
+            />
+            <div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#64748B",
+                  fontWeight: 500,
+                  letterSpacing: "0.03em",
+                  marginBottom: 2,
+                }}
+              >
+                Simulation EHR
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: colors.teal,
+                  fontWeight: 600,
+                }}
+              >
+                Read-only teaching view of sample admissions
+              </div>
+            </div>
+          </div>
 
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <div
-        style={{
-          fontSize: 22,
-          fontWeight: 800,
-          color: "#0F172A",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Azense Simulation EHR
-      </div>
-      <div
-        style={{
-          fontSize: 13,
-          color: "#0369A1",
-          fontWeight: 500,
-        }}
-      >
-        Read-only teaching view of sample admissions
-      </div>
-    </div>
-  </div>
-
-  <div
-    style={{
-      padding: "8px 14px",
-      borderRadius: 999,
-      border: "1px solid rgba(14,165,233,0.35)",
-      background: "linear-gradient(135deg, #F0F9FF, #ECFEFF)",
-      fontSize: 12,
-      fontWeight: 700,
-      color: "#0369A1",
-      whiteSpace: "nowrap",
-      boxShadow: "0 6px 20px rgba(14,165,233,0.10)",
-    }}
-  >
-    View only · No note writing in EHR
-  </div>
-</header>
-
-        {/* Divider */}
-        <div
-  style={{
-    height: 1,
-    width: "100%",
-    background:
-      "linear-gradient(90deg, rgba(14,165,233,0) 0, rgba(14,165,233,0.85) 22%, rgba(34,211,238,0.85) 50%, rgba(14,165,233,0.85) 78%, rgba(14,165,233,0) 100%)",
-    marginBottom: 18,
-  }}
-/>
-
-        {/* Two-column layout */}
-        <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
-    gap: 24,
-  }}
->
-          {/* LEFT COLUMN: EHR content */}
           <div
-  style={{
-    minWidth: 0,
-    maxWidth: "100%",
-  }}
->
-            {/* Patient list */}
-            <section
-  style={{
-    marginBottom: 14,
-    padding: 14,
-    borderRadius: 16,
-    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
-    border: "1px solid rgba(186,230,253,0.9)",
-    boxShadow: "0 10px 30px rgba(14,116,144,0.05)",
-  }}
->
+            style={{
+              padding: "7px 16px",
+              borderRadius: 999,
+              border: `1px solid ${colors.tealBorder}`,
+              background:
+                "linear-gradient(135deg, #F0F9FF 0%, #ECFEFF 100%)",
+              fontSize: 12,
+              fontWeight: 600,
+              color: colors.teal,
+              whiteSpace: "nowrap",
+              letterSpacing: "0.01em",
+            }}
+          >
+            View only · No note writing in EHR
+          </div>
+        </header>
 
-              {/* NEW patient selector block */}
-              <div
-  style={{
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#0369A1",
-    marginBottom: 10,
-  }}
->
-  Patients
-</div>
-
-              <div
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 8,
-    maxHeight: window.innerWidth < 640 ? 160 : 120,
-    overflowY: "auto",
-    marginBottom: 4,
-  }}
->
-                {patients.length === 0 ? (
-                  <div
+        {/* ── PATIENT SELECTOR ── */}
+        <section
+          style={{
+            marginBottom: 16,
+            padding: "16px 18px",
+            borderRadius: 16,
+            background: colors.sectionBg,
+            border: `1px solid ${colors.sectionBorder}`,
+            boxShadow: colors.subtleShadow,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: colors.teal,
+              marginBottom: 10,
+            }}
+          >
+            Patients
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              maxHeight: 120,
+              overflowY: "auto",
+              marginBottom: 4,
+            }}
+          >
+            {patients.length === 0 ? (
+              <div style={{ fontSize: 12, color: "#94A3B8", padding: "8px 0" }}>
+                Loading patients…
+              </div>
+            ) : (
+              patients.map((p) => {
+                const active = selectedPatientId === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedPatientId(p.id)}
                     style={{
+                      padding: "6px 12px",
+                      borderRadius: 8,
+                      border: active
+                        ? "1.5px solid #0F766E"
+                        : "1px solid #E2E8F0",
+                      background: active
+                        ? "linear-gradient(135deg, #CCFBF1, #D1FAE5)"
+                        : "#FFFFFF",
+                      color: active ? "#134E4A" : "#334155",
                       fontSize: 12,
-                      color: "#94A3B8",
-                      padding: "8px 0",
+                      fontWeight: active ? 700 : 500,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: active
+                        ? "0 2px 8px rgba(15,118,110,0.15)"
+                        : "0 1px 2px rgba(15,23,42,0.04)",
                     }}
                   >
-                    No patients loaded
-                  </div>
-                ) : (
-                  patients.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setSelectedPatientId(p.id)}
-                      style={{
-  padding: window.innerWidth < 640 ? "10px 12px" : "8px 10px",
-  borderRadius: 10,
-  border:
-    selectedPatientId === p.id
-      ? "1px solid #0F766E"
-      : "1px solid #CBD5E1",
-  background:
-    selectedPatientId === p.id ? "#CCFBF1" : "#FFFFFF",
-  color:
-    selectedPatientId === p.id ? "#134E4A" : "#0F172A",
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
-}}
-                    >
-                      {p.label || `Patient ${p.id}`}
-                    </button>
-                  ))
-                )}
-              </div>
+                    {p.label || `Patient ${p.id}`}
+                  </button>
+                );
+              })
+            )}
+          </div>
 
-              {ehr?.overview?.brief_reason && (
-                <div
+          {ehr?.overview?.brief_reason && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 12,
+                color: "#475569",
+                fontStyle: "italic",
+              }}
+            >
+              Reason: {ehr.overview.brief_reason}
+            </div>
+          )}
+        </section>
+
+        {/* ── TOP TABS ── */}
+        <section style={{ marginBottom: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              flexWrap: "wrap",
+              padding: "5px 6px",
+              borderRadius: 14,
+              background: "rgba(241,245,249,0.8)",
+              border: "1px solid rgba(226,232,240,0.8)",
+            }}
+          >
+            {TOP_TABS.map((id) => {
+              const active = activeTopTab === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => setActiveTopTab(id)}
                   style={{
-                    marginTop: 4,
-                    fontSize: 11,
-                    color: "#4B5563",
+                    padding: "7px 16px",
+                    borderRadius: 10,
+                    border: "none",
+                    background: active
+                      ? "linear-gradient(135deg, #0284C7, #0EA5E9)"
+                      : "transparent",
+                    color: active ? "#FFFFFF" : "#475569",
+                    fontWeight: active ? 700 : 500,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    boxShadow: active
+                      ? "0 4px 12px rgba(14,165,233,0.25)"
+                      : "none",
                   }}
                 >
-                  Reason: {ehr.overview.brief_reason}
-                </div>
-              )}
-            </section>
+                  {TOP_TAB_LABELS[id]}
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-            {/* Top tabs */}
-            <section style={{ marginBottom: 10 }}>
-  <div
-    style={{
-      display: "flex",
-      gap: 8,
-      flexWrap: "wrap",
-      fontSize: 11,
-      padding: 6,
-      borderRadius: 999,
-      background: "rgba(239,246,255,0.8)",
-      border: "1px solid rgba(191,219,254,0.9)",
-    }}
-  >
-    {TOP_TABS.map((id) => {
-      const label = {
-        notes: "Notes",
-        labs: "Labs",
-        imaging: "Imaging",
-        summary: "Summary",
-        ekgs: "EKGs",
-        procedures: "Procedures",
-      }[id];
-      const active = activeTopTab === id;
-      return (
-        <button
-          key={id}
-          onClick={() => setActiveTopTab(id)}
+        {/* ── CONTENT AREA ── */}
+        <div
           style={{
-  padding: "7px 12px",
-  borderRadius: 999,
-  border: active
-    ? "1px solid rgba(2,132,199,0.9)"
-    : "1px solid rgba(186,230,253,0.95)",
-  background: active
-    ? "linear-gradient(135deg,#0284C7,#22D3EE)"
-    : "#FFFFFF",
-  color: active ? "#F8FAFC" : "#0369A1",
-  fontWeight: active ? 700 : 600,
-  boxShadow: active
-    ? "0 8px 18px rgba(14,165,233,0.22)"
-    : "0 1px 2px rgba(15,23,42,0.04)",
-  cursor: "pointer",
-}}
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: 20,
+          }}
         >
-          {label}
-        </button>
-      );
-    })}
-  </div>
-</section>
-
-            {/* Content area per top tab */}
-            <section
-  style={{
-    marginTop: 6,
-    padding: 14,
-    borderRadius: 18,
-    border: "1px solid rgba(186,230,253,0.95)",
-    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
-    boxShadow: "0 14px 34px rgba(14,116,144,0.06)",
-    minHeight: 300,
-  }}
->
-              {activeTopTab === "notes" && (
-                <div
-  style={{
-    display: "flex",
-    gap: 10,
-    flexDirection: window.innerWidth < 768 ? "column" : "row",
-  }}
->
-                  {/* Note sub-tabs */}
-                  <div style={{ width: 130 }}>
-                    <div
-  style={{
-    width: window.innerWidth < 768 ? "100%" : 140,
-    padding: 10,
-    borderRadius: 14,
-    background: "#F8FBFF",
-    border: "1px solid rgba(191,219,254,0.9)",
-  }}
->
-                      Note types
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 4,
-                      }}
-                    >
-                      {NOTE_TYPES.map((nt) => {
-                        const active = nt.id === activeNoteType;
-                        return (
-                          <button
-                            key={nt.id}
-                            onClick={() => {
-                              setActiveNoteType(nt.id);
-                              setSelectedNoteId(null);
-                            }}
-                           style={{
-  padding: "8px 10px",
-  borderRadius: 12,
-  border: active
-    ? "1px solid rgba(2,132,199,0.85)"
-    : "1px solid rgba(226,232,240,0.95)",
-  background: active
-    ? "linear-gradient(135deg, #E0F2FE, #ECFEFF)"
-    : "#FFFFFF",
-  color: active ? "#075985" : "#0F172A",
-  fontSize: 11,
-  fontWeight: active ? 700 : 600,
-  textAlign: "left",
-  boxShadow: active
-    ? "0 8px 18px rgba(14,165,233,0.14)"
-    : "0 1px 2px rgba(15,23,42,0.04)",
-  cursor: "pointer",
-}}
-                          >
-                            {nt.label}
-                          </button>
-                        );
-                      })}
-                    </div>
+          {/* ── EHR content panel ── */}
+          <section
+            style={{
+              padding: "18px 20px",
+              borderRadius: 16,
+              border: `1px solid ${colors.sectionBorder}`,
+              background: colors.sectionBg,
+              boxShadow: colors.subtleShadow,
+              minHeight: 320,
+            }}
+          >
+            {/* ─── NOTES TAB ─── */}
+            {activeTopTab === "notes" && (
+              <div style={{ display: "flex", gap: 14, minHeight: 400 }}>
+                {/* Note type sidebar */}
+                <div style={{ width: 150, flexShrink: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "#94A3B8",
+                      marginBottom: 8,
+                      padding: "0 2px",
+                    }}
+                  >
+                    Note types
                   </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 3,
+                    }}
+                  >
+                    {NOTE_TYPES.map((nt) => {
+                      const active = nt.id === activeNoteType;
+                      return (
+                        <button
+                          key={nt.id}
+                          onClick={() => {
+                            setActiveNoteType(nt.id);
+                            setSelectedNoteId(null);
+                          }}
+                          style={{
+                            padding: "8px 12px",
+                            borderRadius: 10,
+                            border: "none",
+                            background: active
+                              ? "linear-gradient(135deg, #E0F2FE, #ECFEFF)"
+                              : "transparent",
+                            color: active ? "#075985" : "#334155",
+                            fontSize: 12,
+                            fontWeight: active ? 700 : 500,
+                            textAlign: "left",
+                            cursor: "pointer",
+                            transition: "all 0.15s ease",
+                            borderLeft: active
+                              ? "3px solid #0EA5E9"
+                              : "3px solid transparent",
+                          }}
+                        >
+                          {nt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                  {/* Note list + text */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Note content area */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "#94A3B8",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {activeNoteType.toUpperCase()} notes
+                  </div>
+                  <div style={{ display: "flex", gap: 12, height: 420 }}>
+                    {/* Note list */}
                     <div
                       style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#4B5563",
-                        marginBottom: 4,
+                        width: 200,
+                        borderRadius: 12,
+                        border: "1px solid rgba(226,232,240,0.8)",
+                        background: "#FFFFFF",
+                        overflowY: "auto",
                       }}
                     >
-                      {activeNoteType.toUpperCase()} notes
-                    </div>
-                    <div
-  style={{
-    display: "flex",
-    gap: 10,
-    height: window.innerWidth < 768 ? "auto" : 400,
-    flexDirection: window.innerWidth < 768 ? "column" : "row",
-  }}
->
-                      {/* Note list */}
-                      <div
-  style={{
-    width: window.innerWidth < 768 ? "100%" : 180,
-    borderRadius: 14,
-    border: "1px solid rgba(191,219,254,0.95)",
-    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
-    overflowY: "auto",
-    fontSize: 11,
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
-    minHeight: window.innerWidth < 768 ? 120 : undefined,
-  }}
->
-                        {notesOfType.length === 0 && (
-                          <div
-                            style={{
-                              padding: 6,
-                              color: "#9CA3AF",
-                            }}
-                          >
-                            No notes of this type.
-                          </div>
-                        )}
-                        {notesOfType.map((n) => (
+                      {notesOfType.length === 0 && (
+                        <div
+                          style={{
+                            padding: 14,
+                            color: "#94A3B8",
+                            fontSize: 12,
+                            textAlign: "center",
+                          }}
+                        >
+                          No notes of this type.
+                        </div>
+                      )}
+                      {notesOfType.map((n) => {
+                        const active = selectedNote?.id === n.id;
+                        return (
                           <div
                             key={n.id}
                             onClick={() => setSelectedNoteId(n.id)}
                             style={{
-  padding: "9px 10px",
-  borderBottom: "1px solid rgba(226,232,240,0.9)",
-  cursor: "pointer",
-  background:
-    selectedNote?.id === n.id
-      ? "linear-gradient(135deg, rgba(224,242,254,0.95), rgba(236,254,255,0.95))"
-      : "transparent",
-  borderLeft:
-    selectedNote?.id === n.id
-      ? "3px solid #0EA5E9"
-      : "3px solid transparent",
-}}
+                              padding: "10px 12px",
+                              borderBottom: "1px solid rgba(241,245,249,0.9)",
+                              cursor: "pointer",
+                              background: active
+                                ? "linear-gradient(135deg, rgba(224,242,254,0.7), rgba(236,254,255,0.7))"
+                                : "transparent",
+                              borderLeft: active
+                                ? "3px solid #0EA5E9"
+                                : "3px solid transparent",
+                              transition: "all 0.12s ease",
+                            }}
                           >
                             <div
                               style={{
-                                fontWeight: 600,
-                                color: "#0F172A",
+                                fontWeight: active ? 700 : 600,
+                                color: active ? "#075985" : "#0F172A",
+                                fontSize: 12,
                                 marginBottom: 2,
                               }}
                             >
@@ -494,83 +463,100 @@ useEffect(() => {
                               <div
                                 style={{
                                   fontSize: 10,
-                                  color: "#6B7280",
+                                  color: "#94A3B8",
                                 }}
                               >
                                 {n.timestamp}
                               </div>
                             )}
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })}
+                    </div>
 
-                      {/* Note text */}
-                      <div
-  style={{
-    flex: 1,
-    borderRadius: 16,
-    border: "1px solid rgba(191,219,254,0.95)",
-    background: "linear-gradient(180deg, #FFFFFF, #F9FCFF)",
-    padding: 14,
-    overflowY: "auto",
-    fontSize: 12,
-    whiteSpace: "pre-wrap",
-    boxShadow: "0 10px 24px rgba(15,23,42,0.04)",
-    lineHeight: 1.5,
-    minHeight: window.innerWidth < 768 ? 220 : undefined,
-  }}
->
-                        {selectedNote ? (
-                          <>
-                            <div
-                              style={{
-                                fontWeight: 600,
-                                marginBottom: 4,
-                                color: "#0F172A",
-                              }}
-                            >
-                              {selectedNote.title}
-                            </div>
-                            <div style={{ color: "#111827" }}>
-                              {selectedNote.text}
-                            </div>
-                          </>
-                        ) : (
-                          <div style={{ color: "#9CA3AF" }}>
-                            Select a note to view its contents.
+                    {/* Note text viewer */}
+                    <div
+                      style={{
+                        flex: 1,
+                        borderRadius: 12,
+                        border: "1px solid rgba(226,232,240,0.8)",
+                        background: "#FFFFFF",
+                        padding: "16px 20px",
+                        overflowY: "auto",
+                        fontSize: 13,
+                        whiteSpace: "pre-wrap",
+                        lineHeight: 1.65,
+                        color: "#1E293B",
+                      }}
+                    >
+                      {selectedNote ? (
+                        <>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 14,
+                              marginBottom: 8,
+                              color: colors.navy,
+                              paddingBottom: 8,
+                              borderBottom: "1px solid rgba(226,232,240,0.6)",
+                            }}
+                          >
+                            {selectedNote.title}
                           </div>
-                        )}
-                      </div>
+                          <div>{selectedNote.text}</div>
+                        </>
+                      ) : (
+                        <div
+                          style={{
+                            color: "#94A3B8",
+                            textAlign: "center",
+                            paddingTop: 60,
+                          }}
+                        >
+                          Select a note to view its contents.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {activeTopTab === "labs" && (
-                <div style={{ fontSize: 12, color: "#111827" }}>
-  {ehr?.labs?.length ? (
-    <div style={{ overflowX: "auto", width: "100%" }}>
-      <table
-        style={{
-          width: window.innerWidth < 768 ? 640 : "100%",
-          borderCollapse: "collapse",
-          fontSize: 12,
-        }}
-      >
+            {/* ─── LABS TAB ─── */}
+            {activeTopTab === "labs" && (
+              <div>
+                {ehr?.labs?.length ? (
+                  <div style={{ overflowX: "auto", width: "100%" }}>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "separate",
+                        borderSpacing: 0,
+                        fontSize: 13,
+                      }}
+                    >
                       <thead>
-                        <tr style={{ background: "#E5E7EB" }}>
-                          <th style={{ padding: 4, textAlign: "left" }}>
-                            Time
-                          </th>
-                          <th style={{ padding: 4, textAlign: "left" }}>
-                            Test
-                          </th>
-                          <th style={{ padding: 4, textAlign: "left" }}>
-                            Value
-                          </th>
-                          <th style={{ padding: 4, textAlign: "left" }}>
-                            Normal
-                          </th>
+                        <tr>
+                          {["Time", "Test", "Value", "Normal Range"].map(
+                            (h) => (
+                              <th
+                                key={h}
+                                style={{
+                                  padding: "10px 14px",
+                                  textAlign: "left",
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  letterSpacing: "0.05em",
+                                  textTransform: "uppercase",
+                                  color: "#64748B",
+                                  background: "#F8FAFC",
+                                  borderBottom: "2px solid #E2E8F0",
+                                }}
+                              >
+                                {h}
+                              </th>
+                            )
+                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -578,209 +564,354 @@ useEffect(() => {
                           <tr
                             key={idx}
                             style={{
-                              borderTop: "1px solid #E5E7EB",
                               background:
-                                idx % 2 === 0 ? "#FFFFFF" : "#F9FAFB",
+                                idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
                             }}
                           >
-                            <td style={{ padding: 4 }}>{lab.timestamp}</td>
-                            <td style={{ padding: 4 }}>{lab.name}</td>
-                            <td style={{ padding: 4 }}>
+                            <td
+                              style={{
+                                padding: "9px 14px",
+                                borderBottom: "1px solid #F1F5F9",
+                                color: "#64748B",
+                                fontSize: 12,
+                              }}
+                            >
+                              {lab.timestamp}
+                            </td>
+                            <td
+                              style={{
+                                padding: "9px 14px",
+                                borderBottom: "1px solid #F1F5F9",
+                                fontWeight: 600,
+                                color: "#0F172A",
+                              }}
+                            >
+                              {lab.name}
+                            </td>
+                            <td
+                              style={{
+                                padding: "9px 14px",
+                                borderBottom: "1px solid #F1F5F9",
+                                color: "#0F172A",
+                              }}
+                            >
                               {lab.value}
                               {lab.unit ? ` ${lab.unit}` : ""}
                             </td>
-                            <td style={{ padding: 4 }}>
-                              {lab.normal_range || ""}
+                            <td
+                              style={{
+                                padding: "9px 14px",
+                                borderBottom: "1px solid #F1F5F9",
+                                color: "#64748B",
+                              }}
+                            >
+                              {lab.normal_range || "—"}
                             </td>
                           </tr>
                         ))}
                       </tbody>
-                          </table>
-    </div>
-  ) : (
-                    <div style={{ color: "#9CA3AF" }}>
-                      No structured labs for this case.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTopTab === "imaging" && (
-                <div style={{ fontSize: 12 }}>
-                  {ehr?.imaging?.length ? (
-                    <ul
-                      style={{
-                        margin: 0,
-                        paddingLeft: 16,
-                      }}
-                    >
-                      {ehr.imaging.map((img) => (
-                        <li key={img.id} style={{ marginBottom: 4 }}>
-                          <div
-                            style={{
-                              fontWeight: 600,
-                              color: "#0F172A",
-                            }}
-                          >
-                            {img.modality} {img.body_part}{" "}
-                            {img.timestamp && `· ${img.timestamp}`}
-                          </div>
-                          <div
-                            style={{
-                              color: "#111827",
-                            }}
-                          >
-                            {img.impression}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div style={{ color: "#9CA3AF" }}>
-                      No imaging reports for this case.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTopTab === "summary" && (
-                <div style={{ fontSize: 12, color: "#111827" }}>
-                  <div style={{ marginBottom: 6, fontWeight: 600 }}>
-                    Vitals trends
+                    </table>
                   </div>
-                  {ehr?.summary?.vitals?.length ? (
-                    <pre
-                      style={{
-                        margin: 0,
-                        background: "#FFFFFF",
-                        borderRadius: 6,
-                        padding: 6,
-                        border: "1px solid rgba(209,213,219,0.9)",
-                        fontSize: 11,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {JSON.stringify(ehr.summary.vitals, null, 2)}
-                    </pre>
-                  ) : (
-                    <div style={{ color: "#9CA3AF" }}>
-                      No structured vitals bundle.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTopTab === "ekgs" && (
-                <div style={{ fontSize: 12 }}>
-                  {ehr?.ekgs?.length ? (
-                    <ul style={{ margin: 0, paddingLeft: 16 }}>
-                      {ehr.ekgs.map((e) => (
-                        <li key={e.id} style={{ marginBottom: 4 }}>
-                          <div style={{ fontWeight: 600, color: "#0F172A" }}>
-                            {e.timestamp || "EKG"}
-                          </div>
-                          <div>{e.interpretation}</div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div style={{ color: "#9CA3AF" }}>
-                      No EKG interpretations for this case.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTopTab === "procedures" && (
-                <div style={{ fontSize: 12 }}>
-                  {ehr?.procedures?.length ? (
-                    <ul style={{ margin: 0, paddingLeft: 16 }}>
-                      {ehr.procedures.map((p) => (
-                        <li key={p.id} style={{ marginBottom: 4 }}>
-                          <div style={{ fontWeight: 600, color: "#0F172A" }}>
-                            {p.name} {p.timestamp && `· ${p.timestamp}`}
-                          </div>
-                          {p.description && <div>{p.description}</div>}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div style={{ color: "#9CA3AF" }}>
-                      No procedures documented in this case.
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
-          </div>
-
-          {/* RIGHT COLUMN: blank note area for residents */}
-        <div
-  style={{
-    minWidth: 0,
-    width: "100%",
-  }}
->
-            <section
-  style={{
-    padding: 14,
-    borderRadius: 18,
-    background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
-    border: "1px solid rgba(186,230,253,0.95)",
-    boxShadow: "0 14px 34px rgba(14,116,144,0.06)",
-  }}
->
-              <div
-  style={{
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#0369A1",
-    marginBottom: 10,
-  }}
->
-  Your teaching note
-</div>
-              <div
-  style={{
-    fontSize: 13,
-    color: "#475569",
-    marginBottom: 10,
-    maxWidth: 900,
-    lineHeight: 1.5,
-  }}
->
-                Use this area during teaching sessions for residents to
-                hand‑write their own H&P or progress note based on the simulated
-                EHR. This text is not saved.
+                ) : (
+                  <EmptyState text="No structured labs for this case." />
+                )}
               </div>
-              <textarea
-                rows={18}
-                value={ownNote}
-                onChange={(e) => setOwnNote(e.target.value)}
-                placeholder="Write your own assessment and plan here..."
-                style={{
-  width: "100%",
-  borderRadius: 16,
-  border: "1px solid rgba(191,219,254,0.95)",
-  padding: 14,
-  fontSize: 13,
-  lineHeight: 1.55,
-  fontFamily:
-    "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-  outline: "none",
-  background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
-  color: "#0F172A",
-  resize: "vertical",
-  minHeight: 300,
-  boxShadow: "inset 0 1px 2px rgba(15,23,42,0.04)",
-}}
-              />
-            </section>
-          </div>
+            )}
+
+            {/* ─── IMAGING TAB ─── */}
+            {activeTopTab === "imaging" && (
+              <div>
+                {ehr?.imaging?.length ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    {ehr.imaging.map((img) => (
+                      <div
+                        key={img.id}
+                        style={{
+                          padding: "14px 16px",
+                          borderRadius: 12,
+                          background: "#FFFFFF",
+                          border: "1px solid #E2E8F0",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            color: colors.navy,
+                            fontSize: 13,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {img.modality} {img.body_part}{" "}
+                          {img.timestamp && (
+                            <span
+                              style={{
+                                fontWeight: 400,
+                                color: "#94A3B8",
+                                fontSize: 12,
+                              }}
+                            >
+                              · {img.timestamp}
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#334155",
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          {img.impression}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No imaging reports for this case." />
+                )}
+              </div>
+            )}
+
+            {/* ─── SUMMARY TAB ─── */}
+            {activeTopTab === "summary" && (
+              <div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "#94A3B8",
+                    marginBottom: 10,
+                  }}
+                >
+                  Vitals trends
+                </div>
+                {ehr?.summary?.vitals?.length ? (
+                  <pre
+                    style={{
+                      margin: 0,
+                      background: "#F8FAFC",
+                      borderRadius: 12,
+                      padding: "14px 16px",
+                      border: "1px solid #E2E8F0",
+                      fontSize: 12,
+                      whiteSpace: "pre-wrap",
+                      lineHeight: 1.55,
+                      color: "#334155",
+                      fontFamily: "ui-monospace, 'SF Mono', Consolas, monospace",
+                    }}
+                  >
+                    {JSON.stringify(ehr.summary.vitals, null, 2)}
+                  </pre>
+                ) : (
+                  <EmptyState text="No structured vitals bundle." />
+                )}
+              </div>
+            )}
+
+            {/* ─── EKGs TAB ─── */}
+            {activeTopTab === "ekgs" && (
+              <div>
+                {ehr?.ekgs?.length ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    {ehr.ekgs.map((e) => (
+                      <div
+                        key={e.id}
+                        style={{
+                          padding: "14px 16px",
+                          borderRadius: 12,
+                          background: "#FFFFFF",
+                          border: "1px solid #E2E8F0",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            color: colors.navy,
+                            fontSize: 13,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {e.timestamp || "EKG"}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#334155",
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          {e.interpretation}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No EKG interpretations for this case." />
+                )}
+              </div>
+            )}
+
+            {/* ─── PROCEDURES TAB ─── */}
+            {activeTopTab === "procedures" && (
+              <div>
+                {ehr?.procedures?.length ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    {ehr.procedures.map((p) => (
+                      <div
+                        key={p.id}
+                        style={{
+                          padding: "14px 16px",
+                          borderRadius: 12,
+                          background: "#FFFFFF",
+                          border: "1px solid #E2E8F0",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            color: colors.navy,
+                            fontSize: 13,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {p.name}{" "}
+                          {p.timestamp && (
+                            <span
+                              style={{
+                                fontWeight: 400,
+                                color: "#94A3B8",
+                                fontSize: 12,
+                              }}
+                            >
+                              · {p.timestamp}
+                            </span>
+                          )}
+                        </div>
+                        {p.description && (
+                          <div
+                            style={{
+                              fontSize: 13,
+                              color: "#334155",
+                              lineHeight: 1.55,
+                            }}
+                          >
+                            {p.description}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No procedures documented in this case." />
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* ── TEACHING NOTE AREA ── */}
+          <section
+            style={{
+              padding: "18px 20px",
+              borderRadius: 16,
+              background: colors.sectionBg,
+              border: `1px solid ${colors.sectionBorder}`,
+              boxShadow: colors.subtleShadow,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: colors.teal,
+                marginBottom: 8,
+              }}
+            >
+              Your teaching note
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                color: "#64748B",
+                marginBottom: 12,
+                lineHeight: 1.55,
+              }}
+            >
+              Use this area during teaching sessions for residents to hand-write
+              their own H&P or progress note based on the simulated EHR. This
+              text is not saved.
+            </div>
+            <textarea
+              rows={14}
+              value={ownNote}
+              onChange={(e) => setOwnNote(e.target.value)}
+              placeholder="Write your own assessment and plan here…"
+              style={{
+                width: "100%",
+                borderRadius: 12,
+                border: "1px solid rgba(226,232,240,0.8)",
+                padding: "14px 16px",
+                fontSize: 13,
+                lineHeight: 1.6,
+                fontFamily:
+                  "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+                outline: "none",
+                background: "#FFFFFF",
+                color: "#0F172A",
+                resize: "vertical",
+                minHeight: 200,
+                transition: "border-color 0.15s ease",
+              }}
+              onFocus={(e) =>
+                (e.target.style.borderColor = "rgba(14,165,233,0.5)")
+              }
+              onBlur={(e) =>
+                (e.target.style.borderColor = "rgba(226,232,240,0.8)")
+              }
+            />
+          </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── empty state helper ── */
+function EmptyState({ text }) {
+  return (
+    <div
+      style={{
+        textAlign: "center",
+        padding: "40px 20px",
+        color: "#94A3B8",
+        fontSize: 13,
+      }}
+    >
+      <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.5 }}>
+        {"📋"}
+      </div>
+      {text}
     </div>
   );
 }
