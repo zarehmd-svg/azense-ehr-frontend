@@ -32,9 +32,9 @@ const colors = {
   tealBorder: "rgba(14,165,233,0.35)",
   cardBg: "rgba(255,255,255,0.97)",
   sectionBg: "linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%)",
-  sectionBorder: "rgba(186,230,253,0.85)",
-  subtleShadow: "0 4px 16px rgba(15,23,42,0.06)",
-  cardShadow: "0 20px 50px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.04)",
+  sectionBorder: "rgba(170,210,240,0.9)",
+  subtleShadow: "0 4px 16px rgba(15,23,42,0.07)",
+  cardShadow: "0 20px 50px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.05)",
 };
 
 const inputFocus =
@@ -103,7 +103,7 @@ function App() {
         minHeight: "100vh",
         padding: "24px 16px",
         background:
-          "linear-gradient(165deg, #E0F2FE 0%, #F0F7FF 30%, #EEF2FF 60%, #F8FAFC 100%)",
+          "linear-gradient(165deg, #C8E3F5 0%, #D6E4FA 30%, #D0DAEF 60%, #DEE5F0 100%)",
         fontFamily:
           "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
         display: "flex",
@@ -116,11 +116,11 @@ function App() {
         style={{
           width: "100%",
           maxWidth: 1400,
-          background: colors.cardBg,
+          background: "rgba(255,255,255,0.90)",
           borderRadius: 20,
           padding: "28px 28px 32px",
           boxShadow: colors.cardShadow,
-          border: "1px solid rgba(255,255,255,0.6)",
+          border: "1px solid rgba(190,210,235,0.5)",
           backdropFilter: "blur(12px)",
         }}
       >
@@ -141,7 +141,7 @@ function App() {
               src={AzenseLogo}
               alt="AZense logo"
               style={{
-                height: 52,
+                height: 36,
                 width: "auto",
                 filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
               }}
