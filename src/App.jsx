@@ -369,7 +369,7 @@ useEffect(() => {
                   <div style={{ width: 130 }}>
                     <div
   style={{
-    width: 140,
+    width: window.innerWidth < 768 ? "100%" : 140,
     padding: 10,
     borderRadius: 14,
     background: "#F8FBFF",
@@ -443,13 +443,14 @@ useEffect(() => {
                       {/* Note list */}
                       <div
   style={{
-    width: 180,
+    width: window.innerWidth < 768 ? "100%" : 180,
     borderRadius: 14,
     border: "1px solid rgba(191,219,254,0.95)",
     background: "linear-gradient(180deg, #FFFFFF, #F8FBFF)",
     overflowY: "auto",
     fontSize: 11,
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+    minHeight: window.innerWidth < 768 ? 140 : undefined,
   }}
 >
                         {notesOfType.length === 0 && (
