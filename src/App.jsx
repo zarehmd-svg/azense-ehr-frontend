@@ -548,14 +548,15 @@ useEffect(() => {
 
               {activeTopTab === "labs" && (
                 <div style={{ fontSize: 12, color: "#111827" }}>
-                  {ehr?.labs?.length ? (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        fontSize: 12,
-                      }}
-                    >
+  {ehr?.labs?.length ? (
+    <div style={{ overflowX: "auto", width: "100%" }}>
+      <table
+        style={{
+          width: window.innerWidth < 768 ? 640 : "100%",
+          borderCollapse: "collapse",
+          fontSize: 12,
+        }}
+      >
                       <thead>
                         <tr style={{ background: "#E5E7EB" }}>
                           <th style={{ padding: 4, textAlign: "left" }}>
@@ -594,8 +595,9 @@ useEffect(() => {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
-                  ) : (
+                          </table>
+    </div>
+  ) : (
                     <div style={{ color: "#9CA3AF" }}>
                       No structured labs for this case.
                     </div>
