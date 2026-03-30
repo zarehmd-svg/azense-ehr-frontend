@@ -450,7 +450,7 @@ useEffect(() => {
     overflowY: "auto",
     fontSize: 11,
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
-    minHeight: window.innerWidth < 768 ? 140 : undefined,
+    minHeight: window.innerWidth < 768 ? 120 : undefined,
   }}
 >
                         {notesOfType.length === 0 && (
@@ -517,6 +517,7 @@ useEffect(() => {
     whiteSpace: "pre-wrap",
     boxShadow: "0 10px 24px rgba(15,23,42,0.04)",
     lineHeight: 1.5,
+    minHeight: window.innerWidth < 768 ? 220 : undefined,
   }}
 >
                         {selectedNote ? (
