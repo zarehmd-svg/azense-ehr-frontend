@@ -79,7 +79,27 @@ const colors = {
 const inputFocus =
   "1px solid rgba(14,165,233,0.6)";
 
+const inputStyle = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(148,163,184,0.3)",
+  fontSize: 14,
+  outline: "none",
+  background: "rgba(248,250,252,0.8)",
+  transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+  boxSizing: "border-box",
+};
+
 function App() {
+  const [loggedIn, setLoggedIn] = useState(
+    () => window.localStorage.getItem("azense_ehr_logged_in") === "true"
+  );
+  const [loginError, setLoginError] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [ehr, setEhr] = useState(null);
@@ -88,6 +108,36 @@ function App() {
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
   const [activeLabCategory, setActiveLabCategory] = useState("all");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoginLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: loginUsername,
+          password: loginPassword,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`Login error: ${res.status}`);
+      }
+      const json = await res.json();
+      if (!json.token) {
+        throw new Error("No token in response");
+      }
+      window.localStorage.setItem("azense_ehr_logged_in", "true");
+      setLoggedIn(true);
+    } catch (err) {
+      console.error(err);
+      setLoginError("Invalid username or password.");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   /* ── load patient list ── */
   useEffect(() => {
@@ -138,6 +188,137 @@ function App() {
   /* ══════════════════════════════════════════════════════════
      RENDER
      ══════════════════════════════════════════════════════════ */
+
+  // ───── LOGIN SCREEN ─────
+  if (!loggedIn) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily:
+            "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
+          background:
+            "linear-gradient(165deg, #C8E3F5 0%, #D6E4FA 30%, #D0DAEF 60%, #DEE5F0 100%)",
+        }}
+      >
+        <div
+          style={{
+            width: 380,
+            padding: "40px 36px",
+            borderRadius: 24,
+            background: "rgba(255,255,255,0.92)",
+            backdropFilter: "blur(20px)",
+            boxShadow:
+              "0 25px 60px rgba(15,23,42,0.12), 0 4px 16px rgba(15,23,42,0.05)",
+            border: "1px solid rgba(190,210,235,0.5)",
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: 28,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={AzenseLogo}
+              alt="AZense logo"
+              style={{
+                height: 120,
+                width: "auto",
+                marginBottom: 16,
+                filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.06))",
+              }}
+            />
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#0F172A",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Sign in to AZense EHR
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                color: "#64748B",
+                marginTop: 6,
+              }}
+            >
+              Simulation EHR for teaching
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleLogin}
+            style={{ display: "flex", flexDirection: "column", gap: 14 }}
+          >
+            <input
+              type="text"
+              placeholder="Username"
+              value={loginUsername}
+              onChange={(e) => setLoginUsername(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              style={inputStyle}
+            />
+
+            {loginError && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#DC2626",
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  background: "rgba(239,68,68,0.06)",
+                  border: "1px solid rgba(239,68,68,0.15)",
+                }}
+              >
+                {loginError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loginLoading}
+              style={{
+                marginTop: 4,
+                width: "100%",
+                padding: "12px 16px",
+                borderRadius: 14,
+                border: "none",
+                background:
+                  "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)",
+                color: "#F8FAFC",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: loginLoading ? "wait" : "pointer",
+                letterSpacing: "0.01em",
+                boxShadow: "0 8px 24px rgba(15,23,42,0.20)",
+                transition: "transform 0.1s ease, box-shadow 0.15s ease",
+              }}
+            >
+              {loginLoading ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ───── MAIN APP ─────
   return (
     <div
       style={{
@@ -211,21 +392,64 @@ function App() {
             </div>
           </div>
 
-          <div
-            style={{
-              padding: "7px 16px",
-              borderRadius: 999,
-              border: `1px solid ${colors.tealBorder}`,
-              background:
-                "linear-gradient(135deg, #F0F9FF 0%, #ECFEFF 100%)",
-              fontSize: 12,
-              fontWeight: 600,
-              color: colors.teal,
-              whiteSpace: "nowrap",
-              letterSpacing: "0.01em",
-            }}
-          >
-            View only · No note writing in EHR
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                padding: "7px 16px",
+                borderRadius: 999,
+                border: `1px solid ${colors.tealBorder}`,
+                background:
+                  "linear-gradient(135deg, #F0F9FF 0%, #ECFEFF 100%)",
+                fontSize: 12,
+                fontWeight: 600,
+                color: colors.teal,
+                whiteSpace: "nowrap",
+                letterSpacing: "0.01em",
+              }}
+            >
+              View only · No note writing in EHR
+            </div>
+            <button
+              onClick={() => {
+                window.localStorage.removeItem("azense_ehr_logged_in");
+                setLoggedIn(false);
+                setLoginUsername("");
+                setLoginPassword("");
+                setLoginError("");
+                setEhr(null);
+                setOwnNote("");
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 16px",
+                borderRadius: 999,
+                border: "1px solid rgba(220,38,38,0.25)",
+                background: "rgba(254,242,242,0.6)",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#DC2626",
+                letterSpacing: "0.01em",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(254,226,226,0.9)";
+                e.currentTarget.style.borderColor = "rgba(220,38,38,0.45)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(254,242,242,0.6)";
+                e.currentTarget.style.borderColor = "rgba(220,38,38,0.25)";
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Log out
+            </button>
           </div>
         </header>
 
