@@ -942,7 +942,7 @@ function App() {
           {/* ── TEACHING NOTE AREA ── */}
           <section
             style={{
-              padding: "18px 20px",
+              padding: "20px 22px",
               borderRadius: 16,
               background: colors.sectionBg,
               border: `1px solid ${colors.sectionBorder}`,
@@ -951,33 +951,188 @@ function App() {
           >
             <div
               style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: colors.teal,
-                marginBottom: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 14,
               }}
             >
-              Your teaching note
+              <div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: colors.teal,
+                    marginBottom: 3,
+                  }}
+                >
+                  Your teaching note
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#94A3B8",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Pick a template, write your note, then paste into training.azense.app to compare with AI
+                </div>
+              </div>
+
+              {/* ── Clear button ── */}
+              {ownNote && (
+                <button
+                  onClick={() => setOwnNote("")}
+                  style={{
+                    padding: "5px 12px",
+                    borderRadius: 6,
+                    border: "1px solid #E2E8F0",
+                    background: "#FFFFFF",
+                    color: "#94A3B8",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.borderColor = "#FDA4AF";
+                    e.target.style.color = "#E11D48";
+                    e.target.style.background = "#FFF1F2";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.borderColor = "#E2E8F0";
+                    e.target.style.color = "#94A3B8";
+                    e.target.style.background = "#FFFFFF";
+                  }}
+                >
+                  Clear
+                </button>
+              )}
             </div>
+
+            {/* ── Template buttons ── */}
             <div
               style={{
-                fontSize: 13,
-                color: "#64748B",
-                marginBottom: 12,
-                lineHeight: 1.55,
+                display: "flex",
+                gap: 8,
+                marginBottom: 14,
+                flexWrap: "wrap",
               }}
             >
-              Use this area during teaching sessions for residents to hand-write
-              their own H&P or progress note based on the simulated EHR. This
-              text is not saved.
+              {[
+                {
+                  id: "hp",
+                  label: "H&P",
+                  icon: "📋",
+                  gradient: "linear-gradient(135deg, #3B82F6, #2563EB)",
+                  shadow: "0 4px 14px rgba(37,99,235,0.3)",
+                  hoverBg: "linear-gradient(135deg, #2563EB, #1D4ED8)",
+                  template:
+`HPI:
+[Brief summary of presenting complaint, relevant history, and key findings from ED/triage notes]
+
+Assessment:
+[2-3 line clinical assessment of why this patient requires admission, including working diagnosis and acuity]
+
+Problem List and Plan:
+1. [Primary problem] — [Plan]
+2. [Secondary problem] — [Plan]
+3. [Additional problem] — [Plan]
+
+DVT Prophylaxis:
+[Pharmacologic/mechanical prophylaxis plan]`,
+                },
+                {
+                  id: "pn",
+                  label: "Progress Note",
+                  icon: "📝",
+                  gradient: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
+                  shadow: "0 4px 14px rgba(124,58,237,0.3)",
+                  hoverBg: "linear-gradient(135deg, #7C3AED, #6D28D9)",
+                  template:
+`Assessment:
+[2-3 line assessment of why the patient is admitted and their current clinical status, including interval changes and overnight events]
+
+Problem List and Plan:
+1. [Primary problem] — [Updated plan]
+2. [Secondary problem] — [Updated plan]
+3. [Additional problem] — [Updated plan]
+
+DVT Prophylaxis:
+[Current prophylaxis status and any changes]`,
+                },
+                {
+                  id: "dc",
+                  label: "Discharge Summary",
+                  icon: "📤",
+                  gradient: "linear-gradient(135deg, #10B981, #059669)",
+                  shadow: "0 4px 14px rgba(5,150,105,0.3)",
+                  hoverBg: "linear-gradient(135deg, #059669, #047857)",
+                  template:
+`Assessment:
+[2-3 line assessment of why the patient WAS admitted, including principal diagnosis and clinical course summary]
+
+Problem List:
+1. [Primary diagnosis]
+2. [Secondary diagnosis]
+3. [Additional diagnosis]
+
+Hospital Course:
+[Chronologic narrative of key events, treatments, procedures, and clinical milestones during the hospitalization]
+
+Discharge Plan:
+- Disposition: [Home / SNF / Rehab / etc.]
+- Follow-up: [Appointments and timeframes]
+- Medications: [Key changes from admission]
+- Pending results: [Any outstanding labs/studies]
+- Patient education: [Key instructions given]`,
+                },
+              ].map((tmpl) => (
+                <button
+                  key={tmpl.id}
+                  onClick={() => setOwnNote(tmpl.template)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "9px 18px",
+                    borderRadius: 10,
+                    border: "none",
+                    background: tmpl.gradient,
+                    color: "#FFFFFF",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: tmpl.shadow,
+                    letterSpacing: "0.01em",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = tmpl.hoverBg;
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = tmpl.shadow.replace("0.3", "0.45");
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = tmpl.gradient;
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = tmpl.shadow;
+                  }}
+                >
+                  <span style={{ fontSize: 15 }}>{tmpl.icon}</span>
+                  {tmpl.label}
+                </button>
+              ))}
             </div>
+
+            {/* ── Textarea ── */}
             <textarea
-              rows={14}
+              rows={16}
               value={ownNote}
               onChange={(e) => setOwnNote(e.target.value)}
-              placeholder="Write your own assessment and plan here…"
+              placeholder="Select a template above or start writing your note here…"
               style={{
                 width: "100%",
                 borderRadius: 12,
@@ -991,7 +1146,7 @@ function App() {
                 background: "#FFFFFF",
                 color: "#0F172A",
                 resize: "vertical",
-                minHeight: 200,
+                minHeight: 260,
                 transition: "border-color 0.15s ease",
               }}
               onFocus={(e) =>
