@@ -182,7 +182,7 @@ function App() {
               src={AzenseLogo}
               alt="AZense logo"
               style={{
-                height: 36,
+                height: 80,
                 width: "auto",
                 filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
               }}
