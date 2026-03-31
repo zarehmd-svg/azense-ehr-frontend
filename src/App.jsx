@@ -166,87 +166,68 @@ function App() {
         }}
       >
         {/* ── HEADER ── */}
-        {/* ── HEADER ── */}
-<header
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-    marginBottom: 20,
-    paddingBottom: 20,
-    borderBottom: "1px solid rgba(148,163,184,0.15)",
-  }}
->
-  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 8,
-      }}
-    >
-      <img
-        src="/azense-med-ai-logo.jpg"
-        alt="Azense medical AI logo"
-        style={{
-          height: 56,
-          width: "auto",
-          filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
-        }}
-      />
-      <img
-        src={AzenseLogo}
-        alt="AZense logo"
-        style={{
-          height: 36,
-          width: "auto",
-          filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
-        }}
-      />
-    </div>
+        <header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            marginBottom: 20,
+            paddingBottom: 20,
+            borderBottom: "1px solid rgba(148,163,184,0.15)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <img
+              src={AzenseLogo}
+              alt="AZense logo"
+              style={{
+                height: 36,
+                width: "auto",
+                filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.05))",
+              }}
+            />
+            <div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#64748B",
+                  fontWeight: 500,
+                  letterSpacing: "0.03em",
+                  marginBottom: 2,
+                }}
+              >
+                Simulation EHR
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: colors.teal,
+                  fontWeight: 600,
+                }}
+              >
+                Read-only teaching view of sample admissions
+              </div>
+            </div>
+          </div>
 
-    <div>
-      <div
-        style={{
-          fontSize: 12,
-          color: "#64748B",
-          fontWeight: 500,
-          letterSpacing: "0.03em",
-          marginBottom: 2,
-        }}
-      >
-        Simulation EHR
-      </div>
-      <div
-        style={{
-          fontSize: 13,
-          color: colors.teal,
-          fontWeight: 600,
-        }}
-      >
-        Read-only teaching view of sample admissions
-      </div>
-    </div>
-  </div>
-
-  <div
-    style={{
-      padding: "7px 16px",
-      borderRadius: 999,
-      border: `1px solid ${colors.tealBorder}`,
-      background: "linear-gradient(135deg, #F0F9FF 0%, #ECFEFF 100%)",
-      fontSize: 12,
-      fontWeight: 600,
-      color: colors.teal,
-      whiteSpace: "nowrap",
-      letterSpacing: "0.01em",
-    }}
-  >
-    View only · No note writing in EHR
-  </div>
-</header>
+          <div
+            style={{
+              padding: "7px 16px",
+              borderRadius: 999,
+              border: `1px solid ${colors.tealBorder}`,
+              background:
+                "linear-gradient(135deg, #F0F9FF 0%, #ECFEFF 100%)",
+              fontSize: 12,
+              fontWeight: 600,
+              color: colors.teal,
+              whiteSpace: "nowrap",
+              letterSpacing: "0.01em",
+            }}
+          >
+            View only · No note writing in EHR
+          </div>
+        </header>
 
         {/* ── PATIENT SELECTOR ── */}
         <section
