@@ -23,42 +23,21 @@ const NOTE_TYPES = [
   { id: "discharge", label: "Discharge" },
 ];
 
-/* ── lab category mapping ──────────────────────────────── */
-const LAB_CATEGORIES = [
-  { id: "all", label: "All" },
-  { id: "cbc", label: "CBC" },
-  { id: "bmp", label: "BMP" },
-  { id: "hepatic", label: "Hepatic" },
-  { id: "abg", label: "ABG" },
-  { id: "coags", label: "Coags" },
-  { id: "cardiac", label: "Cardiac" },
-  { id: "inflammatory", label: "Inflammatory" },
-  { id: "ua", label: "Urinalysis" },
-  { id: "micro", label: "Micro" },
+/* ── lab panel mapping ──────────────────────────────── */
+const LAB_PANELS = [
+  { id: "cbc", label: "CBC", match: /\b(hemoglobin|hematocrit|wbc|wbc count|platelets|platelet count|mcv|mch\b|mchc|rdw|neutrophil|lymphocyte|monocyte|eosinophil|basophil|bands?|neutrophil\s*%|lymphocyte\s*%|monocyte\s*%)/i },
+  { id: "bmp", label: "BMP", match: /\b(sodium|potassium|chloride|co2|bicarbonate|bun|creatinine|glucose|calcium|egfr|anion\s*gap|bun\/cr)/i },
+  { id: "lfts", label: "LFTs", match: /\b(alt|ast|alkaline\s*phosphatase|alk\s*phos|total\s*bilirubin|direct\s*bilirubin|total\s*protein|albumin|ggt|ldh)/i },
+  { id: "coags", label: "Coags", match: /\b(pt\b|ptt|aptt|inr|fibrinogen|d-dimer|anti-xa)/i },
+  { id: "cardiac", label: "Cardiac", match: /\b(troponin|high-sensitivity\s*troponin|bnp|nt-probnp|pro.?bnp|ck\b|ck-mb|myoglobin)/i },
   { id: "other", label: "Other" },
 ];
 
 function categorizeLab(name) {
-  const n = (name || "").toLowerCase();
-  // CBC
-  if (/^(wbc|hemoglobin|hematocrit|platelets|mcv|mch[^c]?$|mchc|rdw|neutrophil|band|lymphocyte|monocyte|eosinophil|basophil)/i.test(n)) return "cbc";
-  // ABG
-  if (/^abg/i.test(n)) return "abg";
-  // Hepatic
-  if (/^(ast|alt|alp|alkaline|bilirubin|direct bili|total bili|albumin|total protein|ggt)/i.test(n)) return "hepatic";
-  // Coags
-  if (/^(pt\/inr|inr|prothrombin|aptt|ptt)/i.test(n)) return "coags";
-  // Cardiac
-  if (/^(troponin|bnp|pro.?bnp|ck.?mb|ldh)/i.test(n)) return "cardiac";
-  // Inflammatory
-  if (/^(c-reactive|crp|esr|erythrocyte sed|procalcitonin|lactate|ferritin)/i.test(n)) return "inflammatory";
-  // UA
-  if (/^urinalysis/i.test(n)) return "ua";
-  // Micro
-  if (/^(blood culture|urine culture|sputum|wound culture)/i.test(n)) return "micro";
-  // BMP / CMP (sodium, potassium, chloride, CO2, BUN, creatinine, glucose, calcium, magnesium, phosphorus, eGFR)
-  if (/^(sodium|potassium|chloride|co2|bicarbonate|bun|creatinine|glucose|calcium|magnesium|phosphorus|egfr)/i.test(n)) return "bmp";
-  // Lipids, thyroid, iron, HbA1c, etc.
+  const n = (name || "").trim();
+  for (const panel of LAB_PANELS) {
+    if (panel.match && panel.match.test(n)) return panel.id;
+  }
   return "other";
 }
 
@@ -107,7 +86,8 @@ function App() {
   const [activeNoteType, setActiveNoteType] = useState("hp");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
-  const [activeLabCategory, setActiveLabCategory] = useState("all");
+  const [selectedLabPanel, setSelectedLabPanel] = useState(null);
+  const [selectedLabDay, setSelectedLabDay] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -173,7 +153,8 @@ function App() {
         setEhr(json);
         setSelectedNoteId(null);
         setOwnNote("");
-        setActiveLabCategory("all");
+        setSelectedLabPanel(null);
+        setSelectedLabDay(null);
       } catch (err) {
         console.error("EHR load error:", err);
       }
@@ -788,170 +769,156 @@ function App() {
             )}
 
             {/* ─── LABS TAB ─── */}
-            {activeTopTab === "labs" && (
-              <div>
-                {ehr?.labs?.length ? (
-                  <>
-                    {/* Lab category filter chips */}
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 5,
-                        flexWrap: "wrap",
-                        marginBottom: 14,
-                        padding: "4px 0",
-                      }}
-                    >
-                      {LAB_CATEGORIES.filter(
-                        (cat) =>
-                          cat.id === "all" ||
-                          ehr.labs.some(
-                            (l) => categorizeLab(l.name) === cat.id
-                          )
-                      ).map((cat) => {
-                        const active = activeLabCategory === cat.id;
-                        const count =
-                          cat.id === "all"
-                            ? ehr.labs.length
-                            : ehr.labs.filter(
-                                (l) => categorizeLab(l.name) === cat.id
-                              ).length;
+            {activeTopTab === "labs" && (() => {
+              const labs = ehr?.labs || [];
+              if (!labs.length) return <EmptyState text="No labs available" />;
+
+              /* group by panel */
+              const panelMap = {};
+              labs.forEach((lab) => {
+                const pid = categorizeLab(lab.name);
+                if (!panelMap[pid]) panelMap[pid] = [];
+                panelMap[pid].push(lab);
+              });
+              const availablePanels = LAB_PANELS.filter((p) => panelMap[p.id]);
+              const activePanel = selectedLabPanel && panelMap[selectedLabPanel] ? selectedLabPanel : availablePanels[0]?.id;
+              const panelLabs = panelMap[activePanel] || [];
+
+              /* group by day within panel */
+              const dayMap = {};
+              panelLabs.forEach((lab) => {
+                const d = lab.day != null ? lab.day : 1;
+                if (!dayMap[d]) dayMap[d] = [];
+                dayMap[d].push(lab);
+              });
+              const sortedDays = Object.keys(dayMap).map(Number).sort((a, b) => a - b);
+              const activeDay = selectedLabDay != null && dayMap[selectedLabDay] ? selectedLabDay : sortedDays[0];
+              const dayLabs = dayMap[activeDay] || [];
+
+              return (
+                <div>
+                  {/* ── Panel tabs (Level 1) ── */}
+                  <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 12, padding: "2px 0" }}>
+                    {availablePanels.map((panel) => {
+                      const isActive = panel.id === activePanel;
+                      const hasAbnormal = (panelMap[panel.id] || []).some((l) => l.flag === "H" || l.flag === "L");
+                      return (
+                        <button
+                          key={panel.id}
+                          onClick={() => { setSelectedLabPanel(panel.id); setSelectedLabDay(null); }}
+                          style={{
+                            padding: "6px 14px",
+                            borderRadius: 20,
+                            border: isActive ? "1.5px solid #0284C7" : "1px solid #E2E8F0",
+                            background: isActive ? "#FFFFFF" : "#F8FAFC",
+                            color: isActive ? "#0284C7" : "#475569",
+                            fontSize: 12,
+                            fontWeight: isActive ? 700 : 500,
+                            cursor: "pointer",
+                            transition: "all 0.12s ease",
+                            boxShadow: isActive ? "0 2px 8px rgba(2,132,199,0.10)" : "none",
+                            whiteSpace: "nowrap",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          {panel.label}
+                          {hasAbnormal && (
+                            <span style={{
+                              display: "inline-block",
+                              width: 7,
+                              height: 7,
+                              borderRadius: "50%",
+                              background: "#DC2626",
+                              flexShrink: 0,
+                            }} />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* ── Day sub-tabs (Level 2) ── */}
+                  {sortedDays.length > 1 && (
+                    <div style={{ display: "flex", gap: 4, marginBottom: 12, padding: "2px 0" }}>
+                      {sortedDays.map((d) => {
+                        const isActive = d === activeDay;
                         return (
                           <button
-                            key={cat.id}
-                            onClick={() => setActiveLabCategory(cat.id)}
+                            key={d}
+                            onClick={() => setSelectedLabDay(d)}
                             style={{
-                              padding: "5px 12px",
-                              borderRadius: 8,
-                              border: active
-                                ? "1.5px solid #0284C7"
-                                : "1px solid #E2E8F0",
-                              background: active
-                                ? "linear-gradient(135deg, #E0F2FE, #ECFEFF)"
-                                : "#FFFFFF",
-                              color: active ? "#075985" : "#475569",
+                              padding: "4px 12px",
+                              borderRadius: 16,
+                              border: isActive ? "none" : "1px solid #E2E8F0",
+                              background: isActive ? "#0284C7" : "#FFFFFF",
+                              color: isActive ? "#FFFFFF" : "#64748B",
                               fontSize: 11,
-                              fontWeight: active ? 700 : 500,
+                              fontWeight: isActive ? 700 : 500,
                               cursor: "pointer",
                               transition: "all 0.12s ease",
-                              boxShadow: active
-                                ? "0 2px 6px rgba(2,132,199,0.12)"
-                                : "0 1px 2px rgba(15,23,42,0.04)",
+                              whiteSpace: "nowrap",
                             }}
                           >
-                            {cat.label}
-                            <span
-                              style={{
-                                marginLeft: 4,
-                                fontSize: 10,
-                                opacity: 0.7,
-                              }}
-                            >
-                              ({count})
-                            </span>
+                            Day {d}
                           </button>
                         );
                       })}
                     </div>
+                  )}
 
-                    <div style={{ overflowX: "auto", width: "100%" }}>
-                      <table
-                        style={{
-                          width: "100%",
-                          borderCollapse: "separate",
-                          borderSpacing: 0,
-                          fontSize: 13,
-                        }}
-                      >
-                        <thead>
-                          <tr>
-                            {["Time", "Test", "Value", "Normal Range"].map(
-                              (h) => (
-                                <th
-                                  key={h}
-                                  style={{
-                                    padding: "10px 14px",
-                                    textAlign: "left",
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    letterSpacing: "0.05em",
-                                    textTransform: "uppercase",
-                                    color: "#64748B",
-                                    background: "#F8FAFC",
-                                    borderBottom: "2px solid #E2E8F0",
-                                  }}
-                                >
-                                  {h}
-                                </th>
-                              )
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ehr.labs
-                            .filter(
-                              (lab) =>
-                                activeLabCategory === "all" ||
-                                categorizeLab(lab.name) === activeLabCategory
-                            )
-                            .map((lab, idx) => (
-                              <tr
-                                key={idx}
-                                style={{
-                                  background:
-                                    idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC",
-                                }}
-                              >
-                                <td
-                                  style={{
-                                    padding: "9px 14px",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    color: "#64748B",
-                                    fontSize: 12,
-                                  }}
-                                >
-                                  {lab.timestamp}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "9px 14px",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    fontWeight: 600,
-                                    color: lab.flag === 'H' ? '#DC2626' : lab.flag === 'L' ? '#7C3AED' : '#0F172A',
-                                  }}
-                                >
-                                  {lab.name}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "9px 14px",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    color: lab.flag === 'H' ? '#DC2626' : lab.flag === 'L' ? '#7C3AED' : '#0F172A',
-                                  }}
-                                >
-                                  {lab.value}
-                                  {lab.unit ? ` ${lab.unit}` : ""}
-                                </td>
-                                <td
-                                  style={{
-                                    padding: "9px 14px",
-                                    borderBottom: "1px solid #F1F5F9",
-                                    color: "#64748B",
-                                  }}
-                                >
-                                  {lab.normal_range || "—"}
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </>
-                ) : (
-                  <EmptyState text="No structured labs for this case." />
-                )}
-              </div>
-            )}
+                  {/* ── Lab results table ── */}
+                  <div style={{ overflowX: "auto", width: "100%" }}>
+                    <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}>
+                      <thead>
+                        <tr>
+                          {["Test", "Value", "Unit", "Normal Range", "Flag"].map((h) => (
+                            <th key={h} style={{
+                              padding: "10px 14px",
+                              textAlign: "left",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              letterSpacing: "0.05em",
+                              textTransform: "uppercase",
+                              color: "#64748B",
+                              background: "#F8FAFC",
+                              borderBottom: "2px solid #E2E8F0",
+                            }}>
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dayLabs.map((lab, idx) => {
+                          const flagColor = lab.flag === "H" ? "#DC2626" : lab.flag === "L" ? "#7C3AED" : null;
+                          return (
+                            <tr key={idx} style={{ background: idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC" }}>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 600, color: flagColor || "#0F172A" }}>
+                                {lab.name}
+                              </td>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 600, color: flagColor || "#0F172A" }}>
+                                {lab.value}
+                              </td>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", color: "#64748B" }}>
+                                {lab.unit || "—"}
+                              </td>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", color: "#64748B" }}>
+                                {lab.normal_range || "—"}
+                              </td>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 700, color: flagColor || "#64748B" }}>
+                                {lab.flag || "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* ─── IMAGING TAB ─── */}
             {activeTopTab === "imaging" && (
