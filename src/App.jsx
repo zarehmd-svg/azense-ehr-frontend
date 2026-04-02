@@ -917,7 +917,7 @@ function App() {
                                     padding: "9px 14px",
                                     borderBottom: "1px solid #F1F5F9",
                                     fontWeight: 600,
-                                    color: "#0F172A",
+                                    color: lab.flag === 'H' ? '#DC2626' : lab.flag === 'L' ? '#7C3AED' : '#0F172A',
                                   }}
                                 >
                                   {lab.name}
@@ -926,7 +926,7 @@ function App() {
                                   style={{
                                     padding: "9px 14px",
                                     borderBottom: "1px solid #F1F5F9",
-                                    color: "#0F172A",
+                                    color: lab.flag === 'H' ? '#DC2626' : lab.flag === 'L' ? '#7C3AED' : '#0F172A',
                                   }}
                                 >
                                   {lab.value}
