@@ -1015,39 +1015,86 @@ function App() {
 
             {/* ─── SUMMARY TAB ─── */}
             {activeTopTab === "summary" && (
-              <div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "#94A3B8",
-                    marginBottom: 10,
-                  }}
-                >
-                  Vitals trends
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+                {/* ── VITALS TABLE ── */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Vitals Trends</div>
+                  {ehr?.summary?.vitals?.length ? (
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
+                        <thead>
+                          <tr style={{ background: "linear-gradient(135deg, #1E3A8A, #2563EB)" }}>
+                            {["Time", "Temp", "HR", "BP", "RR", "SpO₂", "Pain", "Notes"].map(h => (
+                              <th key={h} style={{ padding: "6px 8px", color: "#fff", fontWeight: 700, fontSize: 10.5, textAlign: "left", whiteSpace: "nowrap", letterSpacing: "0.04em" }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ehr.summary.vitals.map((v, i) => {
+                            const hr = parseFloat(v.heart_rate) || 0;
+                            const spo2 = parseFloat((v.spo2 || v.SpO2 || "").toString().replace("%","")) || 100;
+                            const rr = parseFloat(v.respiratory_rate) || 0;
+                            const hrColor = hr > 100 ? "#DC2626" : hr < 60 ? "#7C3AED" : "#15803D";
+                            const spo2Color = spo2 < 92 ? "#DC2626" : spo2 < 95 ? "#D97706" : "#15803D";
+                            const rrColor = rr > 20 ? "#DC2626" : rr < 12 ? "#7C3AED" : "#15803D";
+                            const bp = v.blood_pressure || v.bp || "";
+                            const sysBP = parseInt((bp || "").split("/")[0]) || 0;
+                            const bpColor = sysBP < 90 ? "#DC2626" : sysBP > 160 ? "#D97706" : "#15803D";
+                            return (
+                              <tr key={i} style={{ background: i % 2 === 0 ? "#F8FAFC" : "#FFFFFF", borderBottom: "1px solid #E2E8F0" }}>
+                                <td style={{ padding: "5px 8px", color: "#475569", fontWeight: 600, whiteSpace: "nowrap", fontSize: 11 }}>{(v.timestamp || "").replace("2026-", "")}</td>
+                                <td style={{ padding: "5px 8px", color: "#334155" }}>{v.temperature || "—"}</td>
+                                <td style={{ padding: "5px 8px", fontWeight: 700, color: hrColor }}>{v.heart_rate || "—"}</td>
+                                <td style={{ padding: "5px 8px", fontWeight: 700, color: bpColor }}>{bp || "—"}</td>
+                                <td style={{ padding: "5px 8px", fontWeight: 700, color: rrColor }}>{v.respiratory_rate || "—"}</td>
+                                <td style={{ padding: "5px 8px", fontWeight: 700, color: spo2Color }}>{v.spo2 || v.SpO2 || "—"}</td>
+                                <td style={{ padding: "5px 8px", color: "#64748B" }}>{v.pain_score ?? "—"}</td>
+                                <td style={{ padding: "5px 8px", color: "#64748B", fontSize: 11, maxWidth: 160, whiteSpace: "normal" }}>{v.notes || v.oxygen_delivery || ""}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                      <div style={{ marginTop: 6, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                        {[["#DC2626","Abnormal high"],["#7C3AED","Abnormal low"],["#D97706","Borderline"],["#15803D","Normal"]].map(([c,l]) => (
+                          <span key={l} style={{ fontSize: 10, color: c, fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: c, display: "inline-block" }} />{l}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <EmptyState text="No structured vitals bundle." />
+                  )}
                 </div>
-                {ehr?.summary?.vitals?.length ? (
-                  <pre
-                    style={{
-                      margin: 0,
-                      background: "#F8FAFC",
-                      borderRadius: 12,
-                      padding: "14px 16px",
-                      border: "1px solid #E2E8F0",
-                      fontSize: 12,
-                      whiteSpace: "pre-wrap",
-                      lineHeight: 1.55,
-                      color: "#334155",
-                      fontFamily: "ui-monospace, 'SF Mono', Consolas, monospace",
-                    }}
-                  >
-                    {JSON.stringify(ehr.summary.vitals, null, 2)}
-                  </pre>
-                ) : (
-                  <EmptyState text="No structured vitals bundle." />
+
+                {/* ── RESPIRATORY / LINES ── */}
+                {(ehr?.summary?.respiratory?.length > 0 || ehr?.summary?.lines?.length > 0) && (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    {ehr.summary.respiratory?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Respiratory</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {ehr.summary.respiratory.map((r, i) => (
+                            <div key={i} style={{ padding: "8px 12px", borderRadius: 8, background: "#EFF6FF", border: "1px solid #BFDBFE", fontSize: 12, color: "#1E40AF", lineHeight: 1.5 }}>{r}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {ehr.summary.lines?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Lines / Access</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {ehr.summary.lines.map((l, i) => (
+                            <div key={i} style={{ padding: "8px 12px", borderRadius: 8, background: "#F0FDF4", border: "1px solid #BBF7D0", fontSize: 12, color: "#15803D", lineHeight: 1.5 }}>{l}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
+
               </div>
             )}
 
