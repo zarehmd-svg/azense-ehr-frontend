@@ -110,6 +110,7 @@ function App() {
         throw new Error("No token in response");
       }
       window.localStorage.setItem("azense_ehr_logged_in", "true");
+      window.localStorage.setItem("azense_ehr_last_active", Date.now().toString());
       setLoggedIn(true);
     } catch (err) {
       console.error(err);
@@ -118,6 +119,36 @@ function App() {
       setLoginLoading(false);
     }
   };
+
+  /* ── 3-hour inactivity auto-logout ── */
+  useEffect(() => {
+    const TIMEOUT_MS = 3 * 60 * 60 * 1000; // 3 hours
+
+    const resetTimer = () => {
+      window.localStorage.setItem("azense_ehr_last_active", Date.now().toString());
+    };
+
+    const checkTimeout = () => {
+      const last = parseInt(window.localStorage.getItem("azense_ehr_last_active") || "0", 10);
+      if (Date.now() - last > TIMEOUT_MS) {
+        window.localStorage.removeItem("azense_ehr_logged_in");
+        window.localStorage.removeItem("azense_ehr_last_active");
+        setLoggedIn(false);
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkTimeout, 60 * 1000);
+
+    // Reset timer on any user activity
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach((ev) => window.addEventListener(ev, resetTimer, { passive: true }));
+
+    return () => {
+      clearInterval(interval);
+      events.forEach((ev) => window.removeEventListener(ev, resetTimer));
+    };
+  }, [loggedIn]);
 
   /* ── load patient list ── */
   useEffect(() => {
@@ -294,6 +325,66 @@ function App() {
               {loginLoading ? "Signing in…" : "Sign in"}
             </button>
           </form>
+
+          {/* ── Training link ── */}
+          <div style={{ borderTop: "1px solid #E2E8F0", marginTop: 24 }} />
+          <a
+            href="https://training.azense.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginTop: 14,
+              padding: "11px 14px",
+              borderRadius: 12,
+              border: "1px solid #DDE5F0",
+              backgroundColor: "#F8FAFD",
+              textDecoration: "none",
+              color: "#334155",
+              boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#EEF3FB";
+              e.currentTarget.style.borderColor = "#B6C8E8";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(15,23,42,0.10)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#F8FAFD";
+              e.currentTarget.style.borderColor = "#DDE5F0";
+              e.currentTarget.style.boxShadow = "0 1px 4px rgba(15,23,42,0.05)";
+            }}
+          >
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 34,
+                height: 34,
+                borderRadius: 8,
+                backgroundColor: "#E8F4EC",
+                color: "#047857",
+                flexShrink: 0,
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+            </span>
+            <span style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#1E3A5F", lineHeight: 1.3 }}>
+                Open AZense Training
+              </span>
+              <span style={{ fontSize: 11, color: "#94A3B8", lineHeight: 1.3 }}>
+                training.azense.app
+              </span>
+            </span>
+            <span style={{ color: "#94A3B8", fontSize: 14, lineHeight: 1 }}>↗</span>
+          </a>
         </div>
       </div>
     );
@@ -390,6 +481,45 @@ function App() {
             >
               View only · No note writing in EHR
             </div>
+
+            {/* ── Training pill ── */}
+            <a
+              href="https://training.azense.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "7px 14px",
+                borderRadius: 999,
+                border: "1px solid #A8D5B5",
+                background: "rgba(220,243,228,0.7)",
+                textDecoration: "none",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#14532D",
+                letterSpacing: "0.01em",
+                whiteSpace: "nowrap",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(187,232,200,0.9)";
+                e.currentTarget.style.borderColor = "#6BBF85";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(220,243,228,0.7)";
+                e.currentTarget.style.borderColor = "#A8D5B5";
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#047857" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+              AZense Training
+            </a>
+
             <button
               onClick={() => {
                 window.localStorage.removeItem("azense_ehr_logged_in");
