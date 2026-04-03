@@ -840,7 +840,7 @@ function App() {
                   </div>
 
                   {/* ── Day sub-tabs (Level 2) ── */}
-                  {sortedDays.length > 1 && (
+                  {sortedDays.length >= 1 && (
                     <div style={{ display: "flex", gap: 4, marginBottom: 12, padding: "2px 0" }}>
                       {sortedDays.map((d) => {
                         const isActive = d === activeDay;
