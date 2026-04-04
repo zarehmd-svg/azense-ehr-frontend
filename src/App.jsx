@@ -900,75 +900,98 @@ function App() {
             )}
 
             {/* ─── MEDICATIONS TAB ─── */}
-            {activeTopTab === "medications" && (
-              <div style={{ padding: "12px 16px" }}>
-                {/* Scheduled Orders */}
-                <h3 style={{
-                  fontSize: 13, fontWeight: 700, color: "#1E40AF",
-                  marginBottom: 8, marginTop: 0,
-                  borderBottom: "2px solid #DBEAFE", paddingBottom: 6
+            {activeTopTab === "medications" && (() => {
+              const meds = ehr?.medications || {};
+              const MedCard = ({ med, bg, border, tagColor, tagBg, tagText }) => (
+                <div style={{
+                  background: bg, border: `1px solid ${border}`,
+                  borderRadius: 8, padding: "10px 14px",
                 }}>
-                  Scheduled Orders
-                </h3>
-                {ehr?.medications?.scheduled?.length ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {ehr.medications.scheduled.map((med, idx) => (
-                      <div key={`sched-${idx}`} style={{
-                        background: "#F8FAFC", border: "1px solid #E2E8F0",
-                        borderRadius: 8, padding: "10px 14px",
-                      }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>
-                          {med.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
-                          {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
-                        </div>
-                        {med.indication && (
-                          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
-                            {med.indication}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>
+                      {med.name}
+                    </span>
+                    {tagText && (
+                      <span style={{
+                        fontSize: 9, fontWeight: 700, color: tagColor,
+                        background: tagBg, padding: "2px 6px",
+                        borderRadius: 4, letterSpacing: 0.5,
+                      }}>{tagText}</span>
+                    )}
                   </div>
-                ) : (
-                  <EmptyState text="No scheduled medications" />
-                )}
+                  <div style={{ fontSize: 12, color: "#334155", marginTop: 3 }}>
+                    {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
+                  </div>
+                  {med.indication && (
+                    <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
+                      {med.indication}
+                    </div>
+                  )}
+                  {med.reason && (
+                    <div style={{ fontSize: 11, color: "#B45309", marginTop: 2, fontStyle: "italic" }}>
+                      {med.reason}
+                    </div>
+                  )}
+                  {(med.start_day || med.admin_day) && (
+                    <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 3 }}>
+                      {med.admin_day ? `Administered ${med.admin_day}` : `Started ${med.start_day}`}
+                    </div>
+                  )}
+                </div>
+              );
 
-                {/* PRN Orders */}
-                <h3 style={{
-                  fontSize: 13, fontWeight: 700, color: "#7C3AED",
-                  marginBottom: 8, marginTop: 20,
-                  borderBottom: "2px solid #EDE9FE", paddingBottom: 6
-                }}>
-                  PRN Orders
-                </h3>
-                {ehr?.medications?.prn?.length ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {ehr.medications.prn.map((med, idx) => (
-                      <div key={`prn-${idx}`} style={{
-                        background: "#FEFCE8", border: "1px solid #FDE68A",
-                        borderRadius: 8, padding: "10px 14px",
-                      }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>
-                          {med.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
-                          {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
-                        </div>
-                        {med.indication && (
-                          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
-                            {med.indication}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+              const Section = ({ title, icon, color, borderColor, items, emptyText, bg, border, tagColor, tagBg, tagText }) => (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    fontSize: 12, fontWeight: 700, color,
+                    marginBottom: 8, borderBottom: `2px solid ${borderColor}`,
+                    paddingBottom: 6, textTransform: "uppercase", letterSpacing: 0.5,
+                  }}>
+                    <span>{icon}</span> {title}
+                    <span style={{
+                      fontSize: 10, fontWeight: 600, color: "#94A3B8",
+                      marginLeft: "auto", textTransform: "none", letterSpacing: 0,
+                    }}>{items?.length || 0}</span>
                   </div>
-                ) : (
-                  <EmptyState text="No PRN medications" />
-                )}
-              </div>
-            )}
+                  {items?.length ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                      {items.map((med, idx) => (
+                        <MedCard key={idx} med={med} bg={bg} border={border}
+                          tagColor={tagColor} tagBg={tagBg} tagText={tagText} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, color: "#CBD5E1", padding: "6px 0" }}>{emptyText}</div>
+                  )}
+                </div>
+              );
+
+              return (
+                <div style={{ padding: "12px 16px" }}>
+                  <Section
+                    title="Active Scheduled" icon="●" color="#047857" borderColor="#A7F3D0"
+                    items={meds.active_scheduled} emptyText="No active scheduled orders"
+                    bg="#F0FDF4" border="#BBF7D0" tagColor="#065F46" tagBg="#D1FAE5" tagText="ACTIVE"
+                  />
+                  <Section
+                    title="PRN (As Needed)" icon="◆" color="#7C3AED" borderColor="#DDD6FE"
+                    items={meds.active_prn} emptyText="No PRN orders"
+                    bg="#FEFCE8" border="#FDE68A" tagColor="#6D28D9" tagBg="#EDE9FE" tagText="PRN"
+                  />
+                  <Section
+                    title="Administered (One-Time)" icon="✓" color="#6B7280" borderColor="#E5E7EB"
+                    items={meds.one_time_admin} emptyText="No one-time administrations"
+                    bg="#F9FAFB" border="#E5E7EB" tagColor="#6B7280" tagBg="#F3F4F6" tagText="GIVEN"
+                  />
+                  <Section
+                    title="Held / Discontinued" icon="⊘" color="#DC2626" borderColor="#FECACA"
+                    items={meds.held_discontinued} emptyText="No held or discontinued medications"
+                    bg="#FEF2F2" border="#FECACA" tagColor="#991B1B" tagBg="#FEE2E2" tagText="HELD"
+                  />
+                </div>
+              );
+            })()}
 
             {/* ─── LABS TAB ─── */}
             {activeTopTab === "labs" && (() => {
