@@ -3,9 +3,10 @@ import AzenseLogo from "./assets/Azense-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-const TOP_TABS = ["notes", "labs", "imaging", "summary", "ekgs", "procedures"];
+const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures"];
 const TOP_TAB_LABELS = {
   notes: "Notes",
+  medications: "Meds",
   labs: "Labs",
   imaging: "Imaging",
   summary: "Summary",
@@ -895,6 +896,77 @@ function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* ─── MEDICATIONS TAB ─── */}
+            {activeTopTab === "medications" && (
+              <div style={{ padding: "12px 16px" }}>
+                {/* Scheduled Orders */}
+                <h3 style={{
+                  fontSize: 13, fontWeight: 700, color: "#1E40AF",
+                  marginBottom: 8, marginTop: 0,
+                  borderBottom: "2px solid #DBEAFE", paddingBottom: 6
+                }}>
+                  Scheduled Orders
+                </h3>
+                {ehr?.medications?.scheduled?.length ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {ehr.medications.scheduled.map((med, idx) => (
+                      <div key={`sched-${idx}`} style={{
+                        background: "#F8FAFC", border: "1px solid #E2E8F0",
+                        borderRadius: 8, padding: "10px 14px",
+                      }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>
+                          {med.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
+                          {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
+                        </div>
+                        {med.indication && (
+                          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
+                            {med.indication}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No scheduled medications" />
+                )}
+
+                {/* PRN Orders */}
+                <h3 style={{
+                  fontSize: 13, fontWeight: 700, color: "#7C3AED",
+                  marginBottom: 8, marginTop: 20,
+                  borderBottom: "2px solid #EDE9FE", paddingBottom: 6
+                }}>
+                  PRN Orders
+                </h3>
+                {ehr?.medications?.prn?.length ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {ehr.medications.prn.map((med, idx) => (
+                      <div key={`prn-${idx}`} style={{
+                        background: "#FEFCE8", border: "1px solid #FDE68A",
+                        borderRadius: 8, padding: "10px 14px",
+                      }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>
+                          {med.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>
+                          {[med.dose, med.route, med.frequency].filter(Boolean).join(" · ")}
+                        </div>
+                        {med.indication && (
+                          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
+                            {med.indication}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No PRN medications" />
+                )}
               </div>
             )}
 
