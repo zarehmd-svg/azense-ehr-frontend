@@ -1503,10 +1503,7 @@ Assessment:
 Problem List and Plan:
 1. 
 2. 
-3. 
-
-DVT Prophylaxis: 
-Diet: `,
+3. `,
                 },
                 {
                   id: "pn",
@@ -1522,10 +1519,7 @@ Diet: `,
 Problem List and Plan:
 1. 
 2. 
-3. 
-
-DVT Prophylaxis: 
-Diet: `,
+3. `,
                 },
                 {
                   id: "dc",
@@ -1547,12 +1541,7 @@ Hospital Course:
 
 
 Discharge Plan:
-- Disposition: 
-- Discharge Medications: 
-- Follow-up: 
-- Pending Results: 
-- Return Precautions: 
-- Patient Education: `,
+`,
                 },
               ].map((tmpl) => (
                 <button
