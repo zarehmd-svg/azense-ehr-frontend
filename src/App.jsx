@@ -1495,23 +1495,18 @@ function App() {
                   hoverBg: "linear-gradient(135deg, #2563EB, #1D4ED8)",
                   template:
 `HPI:
-Chief Complaint: [1 sentence — why the patient presented]
-History of Present Illness: [Organized narrative including onset, timeline, associated symptoms, pertinent positives and negatives, relevant past medical history, and what prompted admission. Be concise but thorough.]
+
 
 Assessment:
-[Primary diagnosis with FULL specificity — include acuity (acute/chronic/acute-on-chronic), etiology, severity markers (e.g., lactate, creatinine, EF%), staging if applicable, and complications. Example: "Severe sepsis with acute organ dysfunction (AKI Stage 2, lactic acidosis 4.2) secondary to left lower extremity cellulitis" rather than just "sepsis"]
+
 
 Problem List and Plan:
-1. [Problem #1 — stated with coding-level specificity] 
-   - [Specific evidence-based interventions, medications with doses, monitoring plan]
-2. [Problem #2 — stated with coding-level specificity]
-   - [Plan]
-3. [Problem #3 — stated with coding-level specificity]
-   - [Plan]
-(Continue for all active problems, prioritized by acuity)
+1. 
+2. 
+3. 
 
-DVT Prophylaxis: [Agent, dose, frequency — or mechanical if pharmacologic contraindicated with reason]
-Diet: [Specific diet order]`,
+DVT Prophylaxis: 
+Diet: `,
                 },
                 {
                   id: "pn",
@@ -1522,19 +1517,15 @@ Diet: [Specific diet order]`,
                   hoverBg: "linear-gradient(135deg, #7C3AED, #6D28D9)",
                   template:
 `Assessment:
-[Current clinical status with coding-level diagnostic specificity. Include: overnight/interval events, trajectory (improving/worsening/stable) with supporting data (new labs, vitals, imaging). Update diagnoses to reflect current status. Example: "Hospital Day 3, severe sepsis with acute organ dysfunction (AKI improving — Cr 1.8 from 2.4, lactate normalized) secondary to LLE cellulitis — clinically improving on IV vancomycin"]
+
 
 Problem List and Plan:
-1. [Problem #1 — with coding-level specificity and current trajectory]
-   - [Updated plan: what changed today, what continues, monitoring]
-2. [Problem #2 — with coding-level specificity]
-   - [Updated plan]
-3. [Problem #3 — with coding-level specificity]
-   - [Updated plan]
-(Continue for all active problems. Add any new problems from the last 24h. Do not drop resolved problems — mark as resolved.)
+1. 
+2. 
+3. 
 
-DVT Prophylaxis: [Current agent and dose, or reason for holding]
-Diet: [Current diet order]`,
+DVT Prophylaxis: 
+Diet: `,
                 },
                 {
                   id: "dc",
@@ -1545,24 +1536,23 @@ Diet: [Current diet order]`,
                   hoverBg: "linear-gradient(135deg, #059669, #047857)",
                   template:
 `Assessment / Reason for Admission:
-[Principal diagnosis with FULL coding-level specificity — include acuity, etiology, severity markers, staging, and complications. Concise synthesis of why this patient was admitted and the key clinical questions at admission.]
+
 
 Problem List:
-1. [Primary diagnosis — coding-level specificity, note if resolved or ongoing]
-2. [Secondary diagnosis — coding-level specificity, resolved or ongoing]
-3. [Additional diagnosis]
-(List ALL problems actively managed during the hospitalization)
+1. 
+2. 
+3. 
 
 Hospital Course:
-[Organized narrative by problem or chronologically. Include: key events, treatment decisions and rationale (e.g., antibiotic changes, procedures, consults), clinical trajectory and response to treatment, significant lab/imaging trends, and any complications. Be specific — "switched from vancomycin to cefazolin on HD3 after cultures showed MSSA" not just "antibiotics were adjusted."]
+
 
 Discharge Plan:
-- Disposition: [Home / SNF / Rehab / etc.]
-- Discharge Medications: [Key changes from admission with rationale]
-- Follow-up: [Specific appointments with timeframes]
-- Pending Results: [Any outstanding labs, cultures, pathology]
-- Return Precautions: [Specific symptoms/signs warranting return to ED]
-- Patient Education: [Key instructions and counseling provided]`,
+- Disposition: 
+- Discharge Medications: 
+- Follow-up: 
+- Pending Results: 
+- Return Precautions: 
+- Patient Education: `,
                 },
               ].map((tmpl) => (
                 <button
