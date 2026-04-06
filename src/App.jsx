@@ -24,6 +24,25 @@ const NOTE_TYPES = [
   { id: "discharge", label: "Discharge" },
 ];
 
+/* ── note-writing assignment per patient ── */
+const NOTE_ASSIGNMENTS = {
+  "1":  { label: "History & Physical (H&P)",              icon: "📋" },
+  "2":  { label: "Progress Note",                         icon: "📝" },
+  "3":  { label: "Discharge Summary",                     icon: "📄" },
+  "4":  { label: "History & Physical (H&P)",              icon: "📋" },
+  "5":  { label: "Progress Note",                         icon: "📝" },
+  "6":  { label: "Discharge Summary",                     icon: "📄" },
+  "7":  { label: "History & Physical (H&P)",              icon: "📋" },
+  "8":  { label: "Progress Note",                         icon: "📝" },
+  "9":  { label: "Discharge Summary",                     icon: "📄" },
+  "10": { label: "History & Physical (H&P)",              icon: "📋" },
+  "11": { label: "Progress Note",                         icon: "📝" },
+  "12": { label: "Discharge Summary",                     icon: "📄" },
+  "13": { label: "ICU H&P (Systems-Based)",               icon: "🏥" },
+  "14": { label: "Progress Note",                         icon: "📝" },
+  "15": { label: "Discharge Summary",                     icon: "📄" },
+};
+
 /* ── lab panel mapping ──────────────────────────────── */
 const LAB_PANELS = [
   { id: "cbc", label: "CBC", match: /\b(hemoglobin|hematocrit|wbc|wbc count|platelets|platelet count|mcv|mch\b|mchc|rdw|neutrophil|lymphocyte|monocyte|eosinophil|basophil|bands?|neutrophil\s*%|lymphocyte\s*%|monocyte\s*%)/i },
@@ -648,6 +667,98 @@ function App() {
             </div>
           )}
         </section>
+
+        {/* ── NOTE ASSIGNMENT BANNER ── */}
+        {selectedPatientId && NOTE_ASSIGNMENTS[String(selectedPatientId)] && (
+          <div
+            style={{
+              marginBottom: 14,
+              padding: "14px 20px",
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 50%, #FEF3C7 100%)",
+              border: "1.5px solid #F59E0B",
+              boxShadow: "0 2px 12px rgba(245,158,11,0.12), 0 1px 3px rgba(245,158,11,0.08)",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+            }}
+          >
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: "rgba(245,158,11,0.12)",
+                fontSize: 20,
+                flexShrink: 0,
+              }}
+            >
+              {NOTE_ASSIGNMENTS[String(selectedPatientId)].icon}
+            </span>
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#92400E",
+                  marginBottom: 3,
+                }}
+              >
+                Your Assignment
+              </div>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "#78350F",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Write a {NOTE_ASSIGNMENTS[String(selectedPatientId)].label}
+              </div>
+            </div>
+            <a
+              href="https://training.azense.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 16px",
+                borderRadius: 10,
+                border: "1.5px solid #D97706",
+                background: "linear-gradient(135deg, #F59E0B, #D97706)",
+                color: "#FFFFFF",
+                fontSize: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                boxShadow: "0 2px 6px rgba(217,119,6,0.3)",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #D97706, #B45309)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(217,119,6,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #F59E0B, #D97706)";
+                e.currentTarget.style.boxShadow = "0 2px 6px rgba(217,119,6,0.3)";
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+              </svg>
+              Write Note
+            </a>
+          </div>
+        )}
 
         {/* ── TOP TABS ── */}
         <section style={{ marginBottom: 12 }}>
