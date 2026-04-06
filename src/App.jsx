@@ -722,41 +722,7 @@ function App() {
                 Write a {NOTE_ASSIGNMENTS[String(selectedPatientId)].label}
               </div>
             </div>
-            <a
-              href="https://training.azense.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 16px",
-                borderRadius: 10,
-                border: "1.5px solid #D97706",
-                background: "linear-gradient(135deg, #F59E0B, #D97706)",
-                color: "#FFFFFF",
-                fontSize: 12,
-                fontWeight: 700,
-                textDecoration: "none",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                boxShadow: "0 2px 6px rgba(217,119,6,0.3)",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #D97706, #B45309)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(217,119,6,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #F59E0B, #D97706)";
-                e.currentTarget.style.boxShadow = "0 2px 6px rgba(217,119,6,0.3)";
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-              </svg>
-              Write Note
-            </a>
+
           </div>
         )}
 
