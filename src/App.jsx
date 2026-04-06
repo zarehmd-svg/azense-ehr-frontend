@@ -195,8 +195,9 @@ function App() {
           : Array.isArray(json?.data)
           ? json.data
           : [];
-        setPatients(list);
-        if (list.length > 0) setSelectedPatientId(list[0].id);
+        const filtered = list.filter(p => Number(p.id) <= 15);
+        setPatients(filtered);
+        if (filtered.length > 0) setSelectedPatientId(filtered[0].id);
       } catch (err) {
         console.error("Patient load error:", err);
         setPatients([]);
