@@ -675,9 +675,9 @@ function App() {
               marginBottom: 14,
               padding: "14px 20px",
               borderRadius: 14,
-              background: "linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 50%, #FEF3C7 100%)",
-              border: "1.5px solid #F59E0B",
-              boxShadow: "0 2px 12px rgba(245,158,11,0.12), 0 1px 3px rgba(245,158,11,0.08)",
+              background: "linear-gradient(135deg, #E0F2FE 0%, #EFF6FF 50%, #DBEAFE 100%)",
+              border: "1.5px solid rgba(14,165,233,0.45)",
+              boxShadow: "0 2px 12px rgba(3,105,161,0.10), 0 1px 3px rgba(3,105,161,0.06)",
               display: "flex",
               alignItems: "center",
               gap: 14,
@@ -691,7 +691,7 @@ function App() {
                 width: 40,
                 height: 40,
                 borderRadius: 10,
-                background: "rgba(245,158,11,0.12)",
+                background: "rgba(3,105,161,0.10)",
                 fontSize: 20,
                 flexShrink: 0,
               }}
@@ -705,7 +705,7 @@ function App() {
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: "#92400E",
+                  color: "#0369A1",
                   marginBottom: 3,
                 }}
               >
@@ -715,7 +715,7 @@ function App() {
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
-                  color: "#78350F",
+                  color: "#0F172A",
                   letterSpacing: "-0.01em",
                 }}
               >
