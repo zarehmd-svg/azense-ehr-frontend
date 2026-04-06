@@ -25,22 +25,34 @@ const NOTE_TYPES = [
 ];
 
 /* ── note-writing assignment per patient ── */
+const ASSIGN_COLORS = {
+  hp:        { bg: "linear-gradient(135deg, #E0F2FE 0%, #EFF6FF 50%, #DBEAFE 100%)",
+               border: "rgba(14,165,233,0.45)", iconBg: "rgba(3,105,161,0.10)",
+               label: "#0369A1", title: "#0F172A" },
+  progress:  { bg: "linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 50%, #D1FAE5 100%)",
+               border: "rgba(22,163,74,0.40)", iconBg: "rgba(22,163,74,0.10)",
+               label: "#15803D", title: "#14532D" },
+  discharge: { bg: "linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 50%, #FEF3C7 100%)",
+               border: "rgba(245,158,11,0.50)", iconBg: "rgba(245,158,11,0.12)",
+               label: "#B45309", title: "#78350F" },
+};
+
 const NOTE_ASSIGNMENTS = {
-  "1":  { label: "History & Physical (H&P)",              icon: "📋" },
-  "2":  { label: "Progress Note",                         icon: "📝" },
-  "3":  { label: "Discharge Summary",                     icon: "📄" },
-  "4":  { label: "History & Physical (H&P)",              icon: "📋" },
-  "5":  { label: "Progress Note",                         icon: "📝" },
-  "6":  { label: "Discharge Summary",                     icon: "📄" },
-  "7":  { label: "History & Physical (H&P)",              icon: "📋" },
-  "8":  { label: "Progress Note",                         icon: "📝" },
-  "9":  { label: "Discharge Summary",                     icon: "📄" },
-  "10": { label: "History & Physical (H&P)",              icon: "📋" },
-  "11": { label: "Progress Note",                         icon: "📝" },
-  "12": { label: "Discharge Summary",                     icon: "📄" },
-  "13": { label: "ICU H&P (Systems-Based)",               icon: "🏥" },
-  "14": { label: "Progress Note",                         icon: "📝" },
-  "15": { label: "Discharge Summary",                     icon: "📄" },
+  "1":  { label: "History & Physical (H&P)",  icon: "📋", color: "hp" },
+  "2":  { label: "Progress Note",             icon: "📝", color: "progress" },
+  "3":  { label: "Discharge Summary",         icon: "📄", color: "discharge" },
+  "4":  { label: "History & Physical (H&P)",  icon: "📋", color: "hp" },
+  "5":  { label: "Progress Note",             icon: "📝", color: "progress" },
+  "6":  { label: "Discharge Summary",         icon: "📄", color: "discharge" },
+  "7":  { label: "History & Physical (H&P)",  icon: "📋", color: "hp" },
+  "8":  { label: "Progress Note",             icon: "📝", color: "progress" },
+  "9":  { label: "Discharge Summary",         icon: "📄", color: "discharge" },
+  "10": { label: "History & Physical (H&P)",  icon: "📋", color: "hp" },
+  "11": { label: "Progress Note",             icon: "📝", color: "progress" },
+  "12": { label: "Discharge Summary",         icon: "📄", color: "discharge" },
+  "13": { label: "ICU H&P (Systems-Based)",   icon: "🏥", color: "hp" },
+  "14": { label: "Progress Note",             icon: "📝", color: "progress" },
+  "15": { label: "Discharge Summary",         icon: "📄", color: "discharge" },
 };
 
 /* ── lab panel mapping ──────────────────────────────── */
@@ -669,62 +681,66 @@ function App() {
         </section>
 
         {/* ── NOTE ASSIGNMENT BANNER ── */}
-        {selectedPatientId && NOTE_ASSIGNMENTS[String(selectedPatientId)] && (
-          <div
-            style={{
-              marginBottom: 14,
-              padding: "14px 20px",
-              borderRadius: 14,
-              background: "linear-gradient(135deg, #E0F2FE 0%, #EFF6FF 50%, #DBEAFE 100%)",
-              border: "1.5px solid rgba(14,165,233,0.45)",
-              boxShadow: "0 2px 12px rgba(3,105,161,0.10), 0 1px 3px rgba(3,105,161,0.06)",
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-            }}
-          >
-            <span
+        {(() => {
+          const assign = NOTE_ASSIGNMENTS[String(selectedPatientId)];
+          if (!assign) return null;
+          const ac = ASSIGN_COLORS[assign.color];
+          return (
+            <div
               style={{
+                marginBottom: 14,
+                padding: "14px 20px",
+                borderRadius: 14,
+                background: ac.bg,
+                border: `1.5px solid ${ac.border}`,
+                boxShadow: "0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: "rgba(3,105,161,0.10)",
-                fontSize: 20,
-                flexShrink: 0,
+                gap: 14,
               }}
             >
-              {NOTE_ASSIGNMENTS[String(selectedPatientId)].icon}
-            </span>
-            <div style={{ flex: 1 }}>
-              <div
+              <span
                 style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#0369A1",
-                  marginBottom: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: ac.iconBg,
+                  fontSize: 20,
+                  flexShrink: 0,
                 }}
               >
-                Your Assignment
-              </div>
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "#0F172A",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Write a {NOTE_ASSIGNMENTS[String(selectedPatientId)].label}
+                {assign.icon}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: ac.label,
+                    marginBottom: 3,
+                  }}
+                >
+                  Your Assignment
+                </div>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: ac.title,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Write a {assign.label}
+                </div>
               </div>
             </div>
-
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── TOP TABS ── */}
         <section style={{ marginBottom: 12 }}>
