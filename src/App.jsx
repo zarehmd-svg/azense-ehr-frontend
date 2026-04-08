@@ -111,6 +111,28 @@ function App() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
+  // Trial / signup state
+  const [showSignup, setShowSignup] = useState(false);
+  const [signupData, setSignupData] = useState({
+    first_name: "", last_name: "", role: "student", institution: "", email: "", username: "", password: "",
+  });
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [signupError, setSignupError] = useState("");
+  const [isTrial, setIsTrial] = useState(
+    () => window.localStorage.getItem("azense_ehr_is_trial") === "true"
+  );
+  const [trialDaysLeft, setTrialDaysLeft] = useState(
+    () => parseInt(window.localStorage.getItem("azense_ehr_trial_days_left") || "0", 10)
+  );
+  const [allowedPatients, setAllowedPatients] = useState(
+    () => {
+      try { return JSON.parse(window.localStorage.getItem("azense_ehr_allowed_patients") || "null"); } catch { return null; }
+    }
+  );
+  const [displayName, setDisplayName] = useState(
+    () => window.localStorage.getItem("azense_ehr_display_name") || ""
+  );
+
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [ehr, setEhr] = useState(null);
@@ -120,6 +142,22 @@ function App() {
   const [ownNote, setOwnNote] = useState("");
   const [selectedLabPanel, setSelectedLabPanel] = useState(null);
   const [selectedLabDay, setSelectedLabDay] = useState(null);
+
+  const _storeAuthData = (json, usernameOverride) => {
+    window.localStorage.setItem("azense_ehr_logged_in", "true");
+    window.localStorage.setItem("azense_ehr_last_active", Date.now().toString());
+    window.localStorage.setItem("azense_ehr_token", json.token);
+    window.localStorage.setItem("azense_ehr_username", json.username || usernameOverride);
+    window.localStorage.setItem("azense_ehr_is_trial", json.is_trial ? "true" : "false");
+    window.localStorage.setItem("azense_ehr_trial_days_left", String(json.trial_days_left || 0));
+    window.localStorage.setItem("azense_ehr_allowed_patients", JSON.stringify(json.allowed_patients || null));
+    window.localStorage.setItem("azense_ehr_display_name", json.display_name || "");
+    setIsTrial(!!json.is_trial);
+    setTrialDaysLeft(json.trial_days_left || 0);
+    setAllowedPatients(json.allowed_patients || null);
+    setDisplayName(json.display_name || "");
+    setLoggedIn(true);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -135,20 +173,46 @@ function App() {
         }),
       });
       if (!res.ok) {
-        throw new Error(`Login error: ${res.status}`);
+        const errJson = await res.json().catch(() => null);
+        const detail = errJson?.detail || "Invalid username or password.";
+        setLoginError(detail);
+        return;
       }
       const json = await res.json();
       if (!json.token) {
         throw new Error("No token in response");
       }
-      window.localStorage.setItem("azense_ehr_logged_in", "true");
-      window.localStorage.setItem("azense_ehr_last_active", Date.now().toString());
-      setLoggedIn(true);
+      _storeAuthData(json, loginUsername);
     } catch (err) {
       console.error(err);
-      setLoginError("Invalid username or password.");
+      if (!loginError) setLoginError("Invalid username or password.");
     } finally {
       setLoginLoading(false);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setSignupError("");
+    setSignupLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signupData),
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        setSignupError(errJson?.detail || "Signup failed. Please try again.");
+        return;
+      }
+      const json = await res.json();
+      _storeAuthData(json, signupData.username);
+    } catch (err) {
+      console.error(err);
+      setSignupError("Connection error. Please try again.");
+    } finally {
+      setSignupLoading(false);
     }
   };
 
@@ -195,7 +259,11 @@ function App() {
           : Array.isArray(json?.data)
           ? json.data
           : [];
-        const filtered = list.filter(p => Number(p.id) <= 15);
+        let filtered = list.filter(p => Number(p.id) <= 15);
+        // Trial users can only see allowed patients
+        if (allowedPatients && allowedPatients.length > 0) {
+          filtered = filtered.filter(p => allowedPatients.includes(String(p.id)));
+        }
         setPatients(filtered);
         if (filtered.length > 0) setSelectedPatientId(filtered[0].id);
       } catch (err) {
@@ -359,6 +427,97 @@ function App() {
             </button>
           </form>
 
+          {/* ── Sign Up toggle ── */}
+          {!showSignup ? (
+            <button
+              onClick={() => { setShowSignup(true); setLoginError(""); }}
+              style={{
+                marginTop: 12,
+                width: "100%",
+                padding: "10px 16px",
+                borderRadius: 12,
+                border: "1px solid #CBD5E1",
+                background: "transparent",
+                color: "#475569",
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              Create Free Trial Account
+            </button>
+          ) : (
+            <form
+              onSubmit={handleSignup}
+              style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16,
+                       padding: 16, borderRadius: 14, border: "1px solid #E2E8F0", background: "rgba(248,250,252,0.7)" }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B", marginBottom: 2 }}>
+                7-Day Free Trial
+              </div>
+              <div style={{ fontSize: 11, color: "#64748B", marginBottom: 4 }}>
+                Access to Patient 1, 2, and 3 during your trial period.
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <input placeholder="First name" required value={signupData.first_name}
+                  onChange={(e) => setSignupData({ ...signupData, first_name: e.target.value })}
+                  style={{ ...inputStyle, flex: 1 }} />
+                <input placeholder="Last name" required value={signupData.last_name}
+                  onChange={(e) => setSignupData({ ...signupData, last_name: e.target.value })}
+                  style={{ ...inputStyle, flex: 1 }} />
+              </div>
+
+              <select value={signupData.role}
+                onChange={(e) => setSignupData({ ...signupData, role: e.target.value })}
+                style={{ ...inputStyle, cursor: "pointer" }}>
+                <option value="student">Student</option>
+                <option value="resident">Resident</option>
+                <option value="physician">Physician</option>
+              </select>
+
+              <input placeholder="Medical school or residency program" required value={signupData.institution}
+                onChange={(e) => setSignupData({ ...signupData, institution: e.target.value })}
+                style={inputStyle} />
+              <input type="email" placeholder="Email" required value={signupData.email}
+                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                style={inputStyle} />
+              <input placeholder="Choose a username" required value={signupData.username}
+                onChange={(e) => setSignupData({ ...signupData, username: e.target.value })}
+                style={inputStyle} />
+              <input type="password" placeholder="Choose a password (min 6 chars)" required
+                minLength={6} value={signupData.password}
+                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                style={inputStyle} />
+
+              {signupError && (
+                <div style={{ fontSize: 12, color: "#DC2626", padding: "8px 12px", borderRadius: 10,
+                  background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                  {signupError}
+                </div>
+              )}
+
+              <button type="submit" disabled={signupLoading}
+                style={{
+                  width: "100%", padding: "11px 16px", borderRadius: 14, border: "none",
+                  background: "linear-gradient(135deg, #0F766E 0%, #0D9488 50%, #0F766E 100%)",
+                  color: "#F0FDFA", fontWeight: 700, fontSize: 13,
+                  cursor: signupLoading ? "wait" : "pointer",
+                  boxShadow: "0 6px 20px rgba(15,118,110,0.20)",
+                  transition: "transform 0.1s ease",
+                }}>
+                {signupLoading ? "Creating account\u2026" : "Start Free Trial"}
+              </button>
+
+              <button type="button" onClick={() => { setShowSignup(false); setSignupError(""); }}
+                style={{ background: "none", border: "none", color: "#94A3B8",
+                  fontSize: 12, cursor: "pointer", marginTop: 2 }}>
+                \u2190 Back to Sign In
+              </button>
+            </form>
+          )}
+
           {/* ── Training link ── */}
           <div style={{ borderTop: "1px solid #E2E8F0", marginTop: 24 }} />
           <a
@@ -451,6 +610,26 @@ function App() {
           backdropFilter: "blur(12px)",
         }}
       >
+        {/* Trial banner */}
+        {isTrial && trialDaysLeft > 0 && (
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+            padding: "10px 16px", marginBottom: 16, borderRadius: 12,
+            background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
+            border: "1px solid #A7F3D0",
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#065F46" }}>
+              Free Trial {displayName ? `\u2014 Welcome, ${displayName}` : ""}
+            </span>
+            <span style={{
+              fontSize: 12, fontWeight: 700, color: "#047857",
+              padding: "3px 10px", borderRadius: 999, background: "rgba(5,150,105,0.12)",
+            }}>
+              {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} remaining
+            </span>
+          </div>
+        )}
+
         {/* ── HEADER ── */}
         <header
           style={{
@@ -556,10 +735,20 @@ function App() {
             <button
               onClick={() => {
                 window.localStorage.removeItem("azense_ehr_logged_in");
+                window.localStorage.removeItem("azense_ehr_token");
+                window.localStorage.removeItem("azense_ehr_username");
+                window.localStorage.removeItem("azense_ehr_is_trial");
+                window.localStorage.removeItem("azense_ehr_trial_days_left");
+                window.localStorage.removeItem("azense_ehr_allowed_patients");
+                window.localStorage.removeItem("azense_ehr_display_name");
                 setLoggedIn(false);
                 setLoginUsername("");
                 setLoginPassword("");
                 setLoginError("");
+                setIsTrial(false);
+                setTrialDaysLeft(0);
+                setAllowedPatients(null);
+                setDisplayName("");
                 setEhr(null);
                 setOwnNote("");
               }}
