@@ -174,7 +174,12 @@ function App() {
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => null);
-        const detail = errJson?.detail || "Invalid username or password.";
+        let detail = "Invalid username or password.";
+        if (errJson?.detail) {
+          detail = typeof errJson.detail === "string" ? errJson.detail
+            : Array.isArray(errJson.detail) ? errJson.detail.map(e => e.msg || JSON.stringify(e)).join(", ")
+            : "Invalid username or password.";
+        }
         setLoginError(detail);
         return;
       }
@@ -203,7 +208,12 @@ function App() {
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => null);
-        setSignupError(errJson?.detail || "Signup failed. Please try again.");
+        const detail = errJson?.detail;
+        const msg = !detail ? "Signup failed. Please try again."
+          : typeof detail === "string" ? detail
+          : Array.isArray(detail) ? detail.map(e => e.msg || JSON.stringify(e)).join(", ")
+          : "Signup failed. Please try again.";
+        setSignupError(msg);
         return;
       }
       const json = await res.json();
