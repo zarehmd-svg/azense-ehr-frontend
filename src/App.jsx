@@ -281,7 +281,7 @@ function App() {
         setPatients([]);
       }
     })();
-  }, []);
+  }, [allowedPatients]);
 
   /* ── load EHR for selected patient ── */
   useEffect(() => {
