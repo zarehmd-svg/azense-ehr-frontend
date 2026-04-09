@@ -122,6 +122,7 @@ function App() {
   const [expiredUsername, setExpiredUsername] = useState("");
   const [expiredEmail, setExpiredEmail] = useState("");
   const [upgradeLoading, setUpgradeLoading] = useState("");
+  const [upgradeSuccess, setUpgradeSuccess] = useState(false);
   const [isTrial, setIsTrial] = useState(
     () => window.localStorage.getItem("azense_ehr_is_trial") === "true"
   );
@@ -246,7 +247,7 @@ function App() {
       });
       const json = await res.json();
       if (json.url) {
-        window.location.href = json.url;
+        window.open(json.url, "_blank");
       } else {
         alert("Could not start checkout. Please try again.");
       }
@@ -262,7 +263,7 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("upgrade") === "success") {
       window.history.replaceState({}, "", window.location.pathname);
-      alert("Payment successful! Please log in to access your full subscription.");
+      setUpgradeSuccess(true);
     }
   }, []);
 
@@ -418,6 +419,21 @@ function App() {
               Simulation EHR for teaching
             </div>
           </div>
+
+          {upgradeSuccess && (
+            <div style={{
+              padding: "14px 18px", borderRadius: 12, marginBottom: 14,
+              background: "linear-gradient(135deg, #ECFDF5, #D1FAE5)",
+              border: "1px solid #A7F3D0", textAlign: "center",
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#065F46", marginBottom: 4 }}>
+                Payment successful
+              </div>
+              <div style={{ fontSize: 12, color: "#047857" }}>
+                Your subscription is active. Sign in to access all patients, cases, and features.
+              </div>
+            </div>
+          )}
 
           {!trialExpired ? (<>
           <form
@@ -723,7 +739,7 @@ function App() {
             display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
             padding: "10px 16px", marginBottom: 16, borderRadius: 12,
             background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
-            border: "1px solid #A7F3D0",
+            border: "1px solid #A7F3D0", flexWrap: "wrap",
           }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: "#065F46" }}>
               Free Trial {displayName ? `\u2014 Welcome, ${displayName}` : ""}
@@ -734,6 +750,16 @@ function App() {
             }}>
               {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} remaining
             </span>
+            <button onClick={() => {
+              const plan = prompt("Choose a plan:\n1) Monthly \u2014 $14.99/mo\n2) Yearly \u2014 $150/yr (save $30)\n\nEnter 1 or 2:");
+              if (plan === "1" || plan === "2") handleUpgrade(plan === "1" ? "monthly" : "yearly");
+            }} style={{
+              padding: "4px 14px", borderRadius: 8, border: "none",
+              background: "#047857", color: "#ECFDF5", fontWeight: 700,
+              fontSize: 12, cursor: "pointer", transition: "opacity 0.15s",
+            }}>
+              Upgrade
+            </button>
           </div>
         )}
 
