@@ -600,7 +600,7 @@ function App() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>Monthly</div>
-                    <div style={{ fontSize: 12, color: "#64748B" }}>$14.99 / month</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>$19.99 / month</div>
                   </div>
                   <button onClick={() => handleUpgrade("monthly")} disabled={!!upgradeLoading}
                     style={{
@@ -620,9 +620,9 @@ function App() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#0F766E" }}>
-                      Yearly <span style={{ fontSize: 11, fontWeight: 600, color: "#0D9488", background: "#CCFBF1", padding: "2px 8px", borderRadius: 6, marginLeft: 6 }}>Save $30</span>
+                      Yearly <span style={{ fontSize: 11, fontWeight: 600, color: "#0D9488", background: "#CCFBF1", padding: "2px 8px", borderRadius: 6, marginLeft: 6 }}>Save $40</span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#64748B" }}>$150 / year ($12.50/mo)</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>$200 / year ($16.67/mo)</div>
                   </div>
                   <button onClick={() => handleUpgrade("yearly")} disabled={!!upgradeLoading}
                     style={{
@@ -781,7 +781,7 @@ function App() {
                     backdropFilter: "blur(8px)",
                   }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0" }}>Monthly</div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$14.99<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/mo</span></div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$19.99<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/mo</span></div>
                     <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 14 }}>Billed monthly</div>
                     <button onClick={() => handleUpgrade("monthly")} disabled={!!upgradeLoading} style={{
                       width: "100%", padding: "9px 16px", borderRadius: 10,
@@ -804,8 +804,8 @@ function App() {
                       background: "#CCFBF1", padding: "2px 10px", borderRadius: 999,
                     }}>BEST VALUE</span>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#5EEAD4" }}>Yearly</div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$150<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/yr</span></div>
-                    <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 14 }}>$12.50/mo \u2014 Save $30</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$200<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/yr</span></div>
+                    <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 14 }}>$16.67/mo \u2014 Save $40</div>
                     <button onClick={() => handleUpgrade("yearly")} disabled={!!upgradeLoading} style={{
                       width: "100%", padding: "9px 16px", borderRadius: 10,
                       border: "none", background: "linear-gradient(135deg, #0F766E, #0D9488)",
