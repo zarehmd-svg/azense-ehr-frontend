@@ -123,6 +123,7 @@ function App() {
   const [expiredEmail, setExpiredEmail] = useState("");
   const [upgradeLoading, setUpgradeLoading] = useState("");
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+  const [showUpgradePanel, setShowUpgradePanel] = useState(false);
   const [isTrial, setIsTrial] = useState(
     () => window.localStorage.getItem("azense_ehr_is_trial") === "true"
   );
@@ -735,31 +736,89 @@ function App() {
       >
         {/* Trial banner */}
         {isTrial && trialDaysLeft > 0 && (
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            padding: "10px 16px", marginBottom: 16, borderRadius: 12,
-            background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
-            border: "1px solid #A7F3D0", flexWrap: "wrap",
-          }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#065F46" }}>
-              Free Trial {displayName ? `\u2014 Welcome, ${displayName}` : ""}
-            </span>
-            <span style={{
-              fontSize: 12, fontWeight: 700, color: "#047857",
-              padding: "3px 10px", borderRadius: 999, background: "rgba(5,150,105,0.12)",
+          <div style={{ marginBottom: 16 }}>
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+              padding: "10px 16px", borderRadius: showUpgradePanel ? "12px 12px 0 0" : 12,
+              background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
+              border: "1px solid #A7F3D0", borderBottom: showUpgradePanel ? "none" : "1px solid #A7F3D0",
+              flexWrap: "wrap",
             }}>
-              {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} remaining
-            </span>
-            <button onClick={() => {
-              const plan = prompt("Choose a plan:\n1) Monthly \u2014 $14.99/mo\n2) Yearly \u2014 $150/yr (save $30)\n\nEnter 1 or 2:");
-              if (plan === "1" || plan === "2") handleUpgrade(plan === "1" ? "monthly" : "yearly");
-            }} style={{
-              padding: "4px 14px", borderRadius: 8, border: "none",
-              background: "#047857", color: "#ECFDF5", fontWeight: 700,
-              fontSize: 12, cursor: "pointer", transition: "opacity 0.15s",
-            }}>
-              Upgrade
-            </button>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#065F46" }}>
+                Free Trial {displayName ? `\u2014 Welcome, ${displayName}` : ""}
+              </span>
+              <span style={{
+                fontSize: 12, fontWeight: 700, color: "#047857",
+                padding: "3px 10px", borderRadius: 999, background: "rgba(5,150,105,0.12)",
+              }}>
+                {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} remaining
+              </span>
+              <button onClick={() => setShowUpgradePanel(!showUpgradePanel)} style={{
+                padding: "4px 14px", borderRadius: 8, border: "none",
+                background: "#047857", color: "#ECFDF5", fontWeight: 700,
+                fontSize: 12, cursor: "pointer", transition: "all 0.15s",
+              }}>
+                {showUpgradePanel ? "Close" : "Upgrade"}
+              </button>
+            </div>
+
+            {showUpgradePanel && (
+              <div style={{
+                background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+                border: "1px solid #A7F3D0", borderTop: "none",
+                borderRadius: "0 0 12px 12px",
+                padding: "20px 16px",
+              }}>
+                <div style={{ textAlign: "center", marginBottom: 14 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#F0FDFA" }}>Choose Your Plan</div>
+                  <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>Full access to all patients, question banks, and features</div>
+                </div>
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                  {/* Monthly */}
+                  <div style={{
+                    flex: "1 1 180px", maxWidth: 220, borderRadius: 12, padding: "16px 18px",
+                    border: "1px solid rgba(148,163,184,0.25)", background: "rgba(255,255,255,0.05)",
+                    backdropFilter: "blur(8px)",
+                  }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0" }}>Monthly</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$14.99<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/mo</span></div>
+                    <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 14 }}>Billed monthly</div>
+                    <button onClick={() => handleUpgrade("monthly")} disabled={!!upgradeLoading} style={{
+                      width: "100%", padding: "9px 16px", borderRadius: 10,
+                      border: "1px solid rgba(94,234,212,0.3)", background: "transparent",
+                      color: "#5EEAD4", fontWeight: 600, fontSize: 13,
+                      cursor: upgradeLoading ? "wait" : "pointer", transition: "all 0.15s",
+                    }}>
+                      {upgradeLoading === "monthly" ? "Loading\u2026" : "Select Monthly"}
+                    </button>
+                  </div>
+                  {/* Yearly */}
+                  <div style={{
+                    flex: "1 1 180px", maxWidth: 220, borderRadius: 12, padding: "16px 18px",
+                    border: "2px solid #0D9488", background: "rgba(13,148,136,0.1)",
+                    backdropFilter: "blur(8px)", position: "relative",
+                  }}>
+                    <span style={{
+                      position: "absolute", top: -10, right: 12,
+                      fontSize: 10, fontWeight: 700, color: "#0F766E",
+                      background: "#CCFBF1", padding: "2px 10px", borderRadius: 999,
+                    }}>BEST VALUE</span>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#5EEAD4" }}>Yearly</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: "#5EEAD4", margin: "6px 0 2px" }}>$150<span style={{ fontSize: 12, fontWeight: 500, color: "#94A3B8" }}>/yr</span></div>
+                    <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 14 }}>$12.50/mo \u2014 Save $30</div>
+                    <button onClick={() => handleUpgrade("yearly")} disabled={!!upgradeLoading} style={{
+                      width: "100%", padding: "9px 16px", borderRadius: 10,
+                      border: "none", background: "linear-gradient(135deg, #0F766E, #0D9488)",
+                      color: "#F0FDFA", fontWeight: 700, fontSize: 13,
+                      cursor: upgradeLoading ? "wait" : "pointer",
+                      boxShadow: "0 4px 16px rgba(29,233,182,0.2)", transition: "all 0.15s",
+                    }}>
+                      {upgradeLoading === "yearly" ? "Loading\u2026" : "Select Yearly"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
