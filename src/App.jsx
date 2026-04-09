@@ -3,6 +3,110 @@ import AzenseLogo from "./assets/Azense-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
+// ── Patient chief complaints for 100-patient EHR ───────────────────────────
+const PATIENT_CHIEF_COMPLAINTS_EHR = {
+  "1": "Chest pain and shortness of breath",
+  "2": "Altered mental status",
+  "3": "Fever and chills",
+  "4": "Abdominal pain",
+  "5": "Syncope",
+  "6": "Dyspnea",
+  "7": "Nausea and vomiting",
+  "8": "Back pain and weakness",
+  "9": "Headache",
+  "10": "Lower extremity swelling",
+  "11": "Dizziness and falls",
+  "12": "GI bleed",
+  "13": "Hypertensive urgency",
+  "14": "Hypoglycemia",
+  "15": "Acute kidney injury",
+  "16": "Substernal pressure radiating to left arm for 3 hours",
+  "17": "Progressive dyspnea, orthopnea, and 8-pound weight gain over 3 days",
+  "18": "Palpitations, lightheadedness, and mild dyspnea for 1 day",
+  "19": "Severe occipital headache, blurry vision, and nausea with BP 230/130",
+  "20": "3 days of worsening dyspnea, productive yellow sputum, and increased inhaler use",
+  "21": "Fever, productive cough, and worsening dyspnea 3 days after hospital discharge",
+  "22": "Sudden-onset pleuritic chest pain and dyspnea after long-haul flight",
+  "23": "Found confused and diaphoretic at home, glucose 32 mg/dL",
+  "24": "Several days of polyuria, polydipsia, and fatigue; home glucose reading HI",
+  "25": "Decreased urine output, dizziness, and rising creatinine",
+  "26": "Melena, lightheadedness, and epigastric discomfort",
+  "27": "Painless bright red blood per rectum and mild lightheadedness",
+  "28": "Sudden severe epigastric pain radiating to the back with nausea and vomiting",
+  "29": "Several weeks of jaundice, abdominal discomfort, anorexia, and weakness",
+  "30": "Progressive abdominal distension, bilateral leg edema, and fatigue over 3 weeks",
+  "31": "3 days of high fevers, right flank pain, and dysuria with hypotension",
+  "32": "Rapidly spreading redness and warmth of right lower leg with fevers for 2 days",
+  "33": "4 days of watery diarrhea, abdominal cramping, and low-grade fevers after antibiotics",
+  "34": "Acute onset right-sided weakness and expressive aphasia 1 hour ago",
+  "35": "20 minutes of unilateral arm weakness and facial droop that fully resolved",
+  "36": "Brief loss of consciousness in a hot crowded room with prodrome",
+  "37": "Multiple episodes of large-volume hematemesis with lightheadedness",
+  "38": "2 days of severe pain, swelling, and erythema of right first MTP joint",
+  "39": "Plantar foot ulcer with spreading erythema, swelling, and foul-smelling drainage",
+  "40": "Tremors, anxiety, palpitations, and nausea 24 hours after last drink",
+  "41": "2 days of acute worsening confusion, visual hallucinations, and agitation",
+  "42": "Outpatient labs showing potassium 6.5 mEq/L; asymptomatic",
+  "43": "Fatigue, dizziness, unsteady gait, and mild confusion; sodium 118 mEq/L",
+  "44": "Progressive leg swelling, orthopnea, and 5-pound weight gain after vacation",
+  "45": "4 days of fever, purulent sputum, increased dyspnea, and chest pain",
+  "46": "Cough, low-grade fevers, and dyspnea 3 days after a choking episode",
+  "47": "Chronic nonhealing plantar ulcer with new deep foot pain",
+  "48": "High fevers, rigors, severe left flank pain and vomiting",
+  "49": "Unilateral left leg swelling, pain, and erythema 10 days post knee replacement",
+  "50": "Hematemesis after repeated vomiting with heavy alcohol intake",
+  "51": "Severe dyspnea at rest, hypotension, cool extremities, and oliguria",
+  "52": "Sharp pleuritic chest pain improved by leaning forward, low-grade fever",
+  "53": "Worsening dyspnea and somnolence in severe COPD",
+  "54": "Sudden severe dyspnea, orthopnea, and pink frothy sputum after missing antihypertensives",
+  "55": "Fever, severe headache, neck stiffness, and photophobia for 1 day",
+  "56": "Actively seizing for over 5 minutes without regaining consciousness; missed seizure meds",
+  "57": "24 hours of periumbilical pain migrating to right lower quadrant, anorexia, and fever",
+  "58": "Crampy abdominal pain, vomiting, distension, and absence of flatus for 24 hours",
+  "59": "Right upper quadrant pain, fevers, nausea, and vomiting with positive Murphy sign",
+  "60": "2 days of progressive dyspnea, fever, and confusion with hypotension",
+  "61": "Sudden severe right leg pain, pallor, coolness, and decreased pulses",
+  "62": "Hypothermia, bradycardia, hypotension, and altered mental status",
+  "63": "High fever, tachycardia, agitation, and diarrhea in a patient with untreated Graves disease",
+  "64": "Confusion, polyuria, constipation, and proximal muscle weakness; markedly elevated calcium",
+  "65": "Nausea, decreased urine output, and weakness 2 days after starting chemotherapy",
+  "66": "Fever 38.9°C and chills in a patient on chemotherapy; ANC 400",
+  "67": "Severe nausea, abdominal pain, Kussmaul respirations, and lethargy; missed insulin doses",
+  "68": "Sudden dyspnea, pleuritic chest pain, and syncope; hypotensive",
+  "69": "Confusion and focal left-sided weakness; glucose 1100 mg/dL",
+  "70": "Persistent agitation and disorientation on day 5 of ICU stay after extubation",
+  "71": "Increasing confusion, asterixis, and somnolence in a patient with cirrhosis",
+  "72": "Diffuse abdominal pain, low-grade fevers, and worsening ascites in cirrhosis",
+  "73": "Atypical chest discomfort and dyspnea; troponin elevated with ST depressions on ECG",
+  "74": "Exertional chest discomfort, progressive dyspnea, and a syncopal episode climbing stairs",
+  "75": "Fevers, malaise, pleuritic chest pain, and cough in an IV drug user with new murmur",
+  "76": "Several weeks of progressive dyspnea, nonproductive cough, and weight loss in untreated HIV",
+  "77": "Worsening edema, dyspnea, and rising creatinine despite higher outpatient diuretics",
+  "78": "Pleuritic chest pain and dyspnea in patient with metastatic breast cancer; RV strain on imaging",
+  "79": "Increased sputum volume and purulence with mild dyspnea; no focal infiltrate on imaging",
+  "80": "Severe dyspnea, hypotension, tachycardia, and confusion; bilateral infiltrates on chest imaging",
+  "81": "Melena, lightheadedness, and orthostatic hypotension on apixaban for AF",
+  "82": "Palpitations, weight loss, heat intolerance, and tremor with new reduced EF and AF with RVR",
+  "83": "Melena and fatigue in a dialysis patient; endoscopy shows bleeding gastric angiodysplasia",
+  "84": "Rapidly progressive bilateral leg weakness, numbness, and urinary retention in metastatic breast cancer",
+  "85": "Crampy left lower quadrant pain and bloody diarrhea after a hypotensive episode",
+  "86": "Sudden severe headache, vomiting, and right-sided weakness; basal ganglia hemorrhage on CT",
+  "87": "Collapse; telemetry shows polymorphic VT in patient on QT-prolonging medications",
+  "88": "Severe dyspnea, inability to speak full sentences, accessory muscle use after viral URI",
+  "89": "Pleuritic chest pain, dyspnea, and tachycardia at 28 weeks gestation",
+  "90": "Progressive dyspnea, nonproductive cough, and orthopnea; large unilateral pleural effusion on imaging",
+  "91": "Fevers, chills, malaise, and a new murmur in a patient with mechanical aortic valve",
+  "92": "Severe diffuse bone pain after cold exposure and dehydration in sickle cell disease",
+  "93": "Fever, chest pain, cough, and new pulmonary infiltrate in sickle cell disease",
+  "94": "Oozing from IV sites, petechiae, thrombocytopenia, and prolonged PT/INR in septic shock",
+  "95": "Multiple ICD shocks and presyncope; device shows frequent VT episodes",
+  "96": "Confusion, ataxic gait, and horizontal nystagmus in a patient with alcohol use disorder",
+  "97": "Epigastric pain radiating to back and vomiting; markedly elevated triglycerides",
+  "98": "Diffuse muscle pain, weakness, and dark tea-colored urine after intense exercise and heat exposure",
+  "99": "Fevers, rigors, flank pain, and hypotension; obstructing ureteral stone with hydroureteronephrosis",
+  "100": "Worsening dyspnea on exertion and fatigue over several weeks; iron-deficiency anemia found on labs",
+};
+
 const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures"];
 const TOP_TAB_LABELS = {
   notes: "Notes",
@@ -141,6 +245,7 @@ function App() {
 
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [showPatientModal, setShowPatientModal] = useState(false);
   const [ehr, setEhr] = useState(null);
   const [activeTopTab, setActiveTopTab] = useState("notes");
   const [activeNoteType, setActiveNoteType] = useState("hp");
@@ -989,64 +1094,159 @@ function App() {
             boxShadow: colors.subtleShadow,
           }}
         >
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: colors.teal,
-              marginBottom: 10,
-            }}
-          >
-            Patients
+          {/* Patient selector — Select Patient button + modal */}
+          <div style={{ marginBottom: 8 }}>
+            <button
+              onClick={() => setShowPatientModal(true)}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                borderRadius: 12,
+                border: "1.5px solid #0F766E",
+                background: "linear-gradient(135deg, #CCFBF1 0%, #D1FAE5 100%)",
+                color: "#134E4A",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
+                letterSpacing: "0.01em",
+                boxShadow: "0 2px 10px rgba(15,118,110,0.18)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+              }}
+            >
+              <span>
+                {selectedPatientId
+                  ? `▶ Patient #${selectedPatientId}`
+                  : "Select Patient"}
+              </span>
+              <span style={{ fontSize: 11, color: "#0F766E", fontWeight: 500 }}>
+                {selectedPatientId && PATIENT_CHIEF_COMPLAINTS_EHR[String(selectedPatientId)]
+                  ? PATIENT_CHIEF_COMPLAINTS_EHR[String(selectedPatientId)].length > 40
+                    ? PATIENT_CHIEF_COMPLAINTS_EHR[String(selectedPatientId)].slice(0, 40) + "…"
+                    : PATIENT_CHIEF_COMPLAINTS_EHR[String(selectedPatientId)]
+                  : "Click to browse 100 cases"}
+              </span>
+            </button>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 6,
-              maxHeight: 120,
-              overflowY: "auto",
-              marginBottom: 4,
-            }}
-          >
-            {patients.length === 0 ? (
-              <div style={{ fontSize: 12, color: "#94A3B8", padding: "8px 0" }}>
-                Loading patients…
-              </div>
-            ) : (
-              patients.map((p) => {
-                const active = selectedPatientId === p.id;
-                return (
+
+          {/* Patient selection modal */}
+          {showPatientModal && (
+            <div
+              onClick={() => setShowPatientModal(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(15,23,42,0.55)",
+                zIndex: 9999,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "24px",
+              }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: 20,
+                  boxShadow: "0 24px 80px rgba(15,23,42,0.28)",
+                  width: "min(92vw, 900px)",
+                  maxHeight: "82vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Modal header */}
+                <div style={{
+                  padding: "20px 24px 16px",
+                  borderBottom: "1px solid #E2E8F0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexShrink: 0,
+                }}>
+                  <div>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.01em" }}>
+                      Select Patient
+                    </div>
+                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 3 }}>
+                      {patients.length} patients available — click a case to load the EHR
+                    </div>
+                  </div>
                   <button
-                    key={p.id}
-                    onClick={() => setSelectedPatientId(p.id)}
+                    onClick={() => setShowPatientModal(false)}
                     style={{
-                      padding: "6px 12px",
-                      borderRadius: 8,
-                      border: active
-                        ? "1.5px solid #0F766E"
-                        : "1px solid #E2E8F0",
-                      background: active
-                        ? "linear-gradient(135deg, #CCFBF1, #D1FAE5)"
-                        : "#FFFFFF",
-                      color: active ? "#134E4A" : "#334155",
-                      fontSize: 12,
-                      fontWeight: active ? 700 : 500,
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                      boxShadow: active
-                        ? "0 2px 8px rgba(15,118,110,0.15)"
-                        : "0 1px 2px rgba(15,23,42,0.04)",
+                      width: 32, height: 32, borderRadius: "50%",
+                      border: "1px solid #E2E8F0", background: "#F8FAFC",
+                      color: "#475569", fontSize: 16, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontWeight: 700, flexShrink: 0,
                     }}
                   >
-                    {p.label || `Patient ${p.id}`}
+                    ×
                   </button>
-                );
-              })
-            )}
-          </div>
+                </div>
+                {/* Modal body — scrollable grid */}
+                <div style={{
+                  overflowY: "auto",
+                  padding: "16px 20px 24px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                  gap: 10,
+                }}>
+                  {patients.length === 0 ? (
+                    <div style={{ gridColumn: "1/-1", padding: 32, textAlign: "center", color: "#94A3B8" }}>
+                      Loading patients…
+                    </div>
+                  ) : (
+                    patients.map((p) => {
+                      const active = selectedPatientId === p.id;
+                      const cc = PATIENT_CHIEF_COMPLAINTS_EHR[String(p.id)];
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setSelectedPatientId(p.id);
+                            setShowPatientModal(false);
+                          }}
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: 12,
+                            border: active ? "2px solid #0F766E" : "1.5px solid #E2E8F0",
+                            background: active
+                              ? "linear-gradient(135deg, #CCFBF1, #D1FAE5)"
+                              : "#FAFAFA",
+                            color: active ? "#134E4A" : "#1E293B",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            transition: "all 0.12s ease",
+                            boxShadow: active
+                              ? "0 4px 14px rgba(15,118,110,0.2)"
+                              : "0 1px 3px rgba(15,23,42,0.05)",
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
+                            Patient #{p.id}
+                          </div>
+                          <div style={{
+                            fontSize: 11,
+                            color: active ? "#0F766E" : "#64748B",
+                            lineHeight: 1.4,
+                            fontWeight: 400,
+                          }}>
+                            {cc || p.label || `Patient ${p.id}`}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {ehr?.overview?.brief_reason && (
             <div
