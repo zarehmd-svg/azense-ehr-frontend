@@ -118,6 +118,10 @@ function App() {
   });
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupError, setSignupError] = useState("");
+  const [trialExpired, setTrialExpired] = useState(false);
+  const [expiredUsername, setExpiredUsername] = useState("");
+  const [expiredEmail, setExpiredEmail] = useState("");
+  const [upgradeLoading, setUpgradeLoading] = useState("");
   const [isTrial, setIsTrial] = useState(
     () => window.localStorage.getItem("azense_ehr_is_trial") === "true"
   );
@@ -174,6 +178,12 @@ function App() {
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => null);
+        if (res.status === 403 && errJson?.detail?.trial_expired) {
+          setTrialExpired(true);
+          setExpiredUsername(errJson.detail.username || "");
+          setExpiredEmail(errJson.detail.email || "");
+          return;
+        }
         let detail = "Invalid username or password.";
         if (errJson?.detail) {
           detail = typeof errJson.detail === "string" ? errJson.detail
@@ -225,6 +235,36 @@ function App() {
       setSignupLoading(false);
     }
   };
+
+  const handleUpgrade = async (plan) => {
+    setUpgradeLoading(plan);
+    try {
+      const res = await fetch(`${API_BASE}/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, username: expiredUsername || loginUsername, email: expiredEmail }),
+      });
+      const json = await res.json();
+      if (json.url) {
+        window.location.href = json.url;
+      } else {
+        alert("Could not start checkout. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Connection error. Please try again.");
+    } finally {
+      setUpgradeLoading("");
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgrade") === "success") {
+      window.history.replaceState({}, "", window.location.pathname);
+      alert("Payment successful! Please log in to access your full subscription.");
+    }
+  }, []);
 
   /* ── 3-hour inactivity auto-logout ── */
   useEffect(() => {
@@ -379,6 +419,7 @@ function App() {
             </div>
           </div>
 
+          {!trialExpired ? (<>
           <form
             onSubmit={handleLogin}
             style={{ display: "flex", flexDirection: "column", gap: 14 }}
@@ -523,9 +564,65 @@ function App() {
               <button type="button" onClick={() => { setShowSignup(false); setSignupError(""); }}
                 style={{ background: "none", border: "none", color: "#94A3B8",
                   fontSize: 12, cursor: "pointer", marginTop: 2 }}>
-                \u2190 Back to Sign In
+                ← Back to Sign In
               </button>
             </form>
+          )}
+          </>) : (
+            <div style={{ textAlign: "center", padding: "8px 0" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+                Your free trial has expired
+              </div>
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>
+                Upgrade to get full access to all question banks, cases, and features.
+              </p>
+              <div style={{
+                border: "1px solid #E2E8F0", borderRadius: 14, padding: "16px 20px",
+                marginBottom: 10, textAlign: "left", background: "rgba(248,250,252,0.7)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>Monthly</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>$14.99 / month</div>
+                  </div>
+                  <button onClick={() => handleUpgrade("monthly")} disabled={!!upgradeLoading}
+                    style={{
+                      padding: "8px 20px", borderRadius: 10, border: "none",
+                      background: "linear-gradient(135deg, #0F766E, #0D9488)",
+                      color: "#F0FDFA", fontWeight: 700, fontSize: 13,
+                      cursor: upgradeLoading ? "wait" : "pointer",
+                    }}>
+                    {upgradeLoading === "monthly" ? "Loading\u2026" : "Subscribe"}
+                  </button>
+                </div>
+              </div>
+              <div style={{
+                border: "2px solid #0D9488", borderRadius: 14, padding: "16px 20px",
+                marginBottom: 16, textAlign: "left", background: "rgba(240,253,250,0.5)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0F766E" }}>
+                      Yearly <span style={{ fontSize: 11, fontWeight: 600, color: "#0D9488", background: "#CCFBF1", padding: "2px 8px", borderRadius: 6, marginLeft: 6 }}>Save $30</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>$150 / year ($12.50/mo)</div>
+                  </div>
+                  <button onClick={() => handleUpgrade("yearly")} disabled={!!upgradeLoading}
+                    style={{
+                      padding: "8px 20px", borderRadius: 10, border: "none",
+                      background: "linear-gradient(135deg, #0F766E, #0D9488)",
+                      color: "#F0FDFA", fontWeight: 700, fontSize: 13,
+                      cursor: upgradeLoading ? "wait" : "pointer",
+                    }}>
+                    {upgradeLoading === "yearly" ? "Loading\u2026" : "Subscribe"}
+                  </button>
+                </div>
+              </div>
+              <button onClick={() => { setTrialExpired(false); setLoginError(""); }}
+                style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 12, cursor: "pointer" }}>
+                ← Back to Sign In
+              </button>
+            </div>
           )}
 
           {/* ── Training link ── */}
