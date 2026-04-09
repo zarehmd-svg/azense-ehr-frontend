@@ -244,7 +244,7 @@ function App() {
       const res = await fetch(`${API_BASE}/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, username: expiredUsername || loginUsername, email: expiredEmail }),
+        body: JSON.stringify({ plan, username: expiredUsername || loginUsername || window.localStorage.getItem("azense_ehr_username") || "", email: expiredEmail }),
       });
       const json = await res.json();
       if (json.url) {
