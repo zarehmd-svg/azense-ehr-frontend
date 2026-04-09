@@ -416,7 +416,7 @@ function App() {
           : Array.isArray(json?.data)
           ? json.data
           : [];
-        let filtered = list.filter(p => Number(p.id) <= 15);
+        let filtered = list;
         // Trial users can only see allowed patients
         if (allowedPatients && allowedPatients.length > 0) {
           filtered = filtered.filter(p => allowedPatients.includes(String(p.id)));
