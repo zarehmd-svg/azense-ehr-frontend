@@ -693,11 +693,22 @@ function App() {
           )}
           </>) : (
             <div style={{ textAlign: "center", padding: "8px 0" }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: "50%", margin: "0 auto 14px",
+                background: "linear-gradient(135deg, #FEE2E2, #FECACA)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 26,
+              }}>
+                🔒
+              </div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: "#1E293B", marginBottom: 6 }}>
                 Your free trial has expired
               </div>
-              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 20px" }}>
-                Upgrade to get full access to all question banks, cases, and features.
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 6px" }}>
+                Your 7-day trial for <strong>{expiredUsername || "your account"}</strong> has ended.
+              </p>
+              <p style={{ fontSize: 13, color: "#64748B", margin: "0 0 22px" }}>
+                Subscribe to unlock all patients, cases, and features.
               </p>
               <div style={{
                 border: "1px solid #E2E8F0", borderRadius: 14, padding: "16px 20px",
