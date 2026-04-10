@@ -971,6 +971,27 @@ function App() {
               >
                 Read-only teaching view of sample admissions
               </div>
+              <button
+                onClick={() => setShowTutorial(true)}
+                style={{
+                  marginTop: 6,
+                  padding: "5px 14px",
+                  borderRadius: 999,
+                  border: "1.5px solid rgba(139,92,246,0.35)",
+                  background: "linear-gradient(135deg, #7C3AED, #8B5CF6)",
+                  color: "#FFFFFF",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  letterSpacing: "0.02em",
+                  boxShadow: "0 3px 10px rgba(124,58,237,0.30)",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 5px 16px rgba(124,58,237,0.45)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 3px 10px rgba(124,58,237,0.30)"; }}
+              >
+                ▶ Tutorial
+              </button>
             </div>
           </div>
 
@@ -1365,25 +1386,7 @@ function App() {
                 </button>
               );
             })}
-            {/* Tutorial tab — opens YouTube modal */}
-            <button
-              onClick={() => setShowTutorial(true)}
-              style={{
-                padding: "7px 16px",
-                borderRadius: 10,
-                border: "none",
-                background: "transparent",
-                color: "#7C3AED",
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, #7C3AED, #8B5CF6)"; e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(139,92,246,0.25)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#7C3AED"; e.currentTarget.style.boxShadow = "none"; }}
-            >
-              ▶ Tutorial
-            </button>
+
           </div>
         </section>
 
