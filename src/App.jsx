@@ -370,6 +370,18 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("upgrade") === "success") {
       window.history.replaceState({}, "", window.location.pathname);
+      // Clear old auth so user logs in fresh with updated paid status
+      window.localStorage.removeItem("azense_token");
+      window.localStorage.removeItem("azense_is_trial");
+      window.localStorage.removeItem("azense_trial_days_left");
+      window.localStorage.removeItem("azense_allowed_patients");
+      window.localStorage.removeItem("azense_display_name");
+      window.localStorage.removeItem("azense_username");
+      window.localStorage.removeItem("azense_subscription_status");
+      setToken(null);
+      setIsTrial(false);
+      setTrialExpired(false);
+      setShowUpgradePanel(false);
       setUpgradeSuccess(true);
     }
   }, []);
@@ -529,15 +541,16 @@ function App() {
 
           {upgradeSuccess && (
             <div style={{
-              padding: "14px 18px", borderRadius: 12, marginBottom: 14,
+              padding: "20px 22px", borderRadius: 14, marginBottom: 16,
               background: "linear-gradient(135deg, #ECFDF5, #D1FAE5)",
               border: "1px solid #A7F3D0", textAlign: "center",
             }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#065F46", marginBottom: 4 }}>
-                Payment successful
+              <div style={{ fontSize: 28, marginBottom: 8 }}>\u2705</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#065F46", marginBottom: 6 }}>
+                Payment confirmed
               </div>
-              <div style={{ fontSize: 12, color: "#047857" }}>
-                Your subscription is active. Sign in to access all patients, cases, and features.
+              <div style={{ fontSize: 13, color: "#047857" }}>
+                Your subscription is active. Log in below to enjoy full access to all patients, cases, and features.
               </div>
             </div>
           )}
