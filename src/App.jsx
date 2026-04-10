@@ -253,6 +253,7 @@ function App() {
   const [ownNote, setOwnNote] = useState("");
   const [selectedLabPanel, setSelectedLabPanel] = useState(null);
   const [selectedLabDay, setSelectedLabDay] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const _storeAuthData = (json, usernameOverride) => {
     window.localStorage.setItem("azense_ehr_logged_in", "true");
@@ -1364,6 +1365,25 @@ function App() {
                 </button>
               );
             })}
+            {/* Tutorial tab — opens YouTube modal */}
+            <button
+              onClick={() => setShowTutorial(true)}
+              style={{
+                padding: "7px 16px",
+                borderRadius: 10,
+                border: "none",
+                background: "transparent",
+                color: "#7C3AED",
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, #7C3AED, #8B5CF6)"; e.currentTarget.style.color = "#FFFFFF"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(139,92,246,0.25)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#7C3AED"; e.currentTarget.style.boxShadow = "none"; }}
+            >
+              ▶ Tutorial
+            </button>
           </div>
         </section>
 
@@ -2300,6 +2320,34 @@ Discharge Plan:
           © 2026 Azense AI LLC. All rights reserved.
         </div>
       </div>
+
+      {/* ── Tutorial YouTube Modal ── */}
+      {showTutorial && (
+        <div
+          onClick={() => setShowTutorial(false)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 10000,
+          }}
+        >
+          <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", width: "90vw", maxWidth: 900, aspectRatio: "16/9", background: "#000", borderRadius: 12, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
+            <button
+              onClick={() => setShowTutorial(false)}
+              style={{ position: "absolute", top: -36, right: 0, background: "transparent", border: "none", color: "#fff", fontSize: "1.4rem", cursor: "pointer", zIndex: 10, opacity: 0.8 }}
+            >
+              ✕
+            </button>
+            <iframe
+              src="https://www.youtube.com/embed/pCRJDuasxc0"
+              title="Azense Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ width: "100%", height: "100%", border: "none" }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
