@@ -178,6 +178,50 @@ function categorizeLab(name) {
   return "other";
 }
 
+/* ── Lab reference ranges for color coding ── */
+const LAB_RANGES = {
+  wbc:        { low: 4.5,  high: 11.0, critLow: 2,    critHigh: 20,   unit: "K/uL" },
+  hemoglobin: { low: 12,   high: 17,   critLow: 7,    critHigh: null,  unit: "g/dL" },
+  hematocrit: { low: 36,   high: 51,   critLow: 21,   critHigh: null,  unit: "%" },
+  platelets:  { low: 150,  high: 400,  critLow: 50,   critHigh: 1000, unit: "K/uL" },
+  sodium:     { low: 136,  high: 145,  critLow: 125,  critHigh: 155,  unit: "mEq/L" },
+  potassium:  { low: 3.5,  high: 5.0,  critLow: 3.0,  critHigh: 6.0,  unit: "mEq/L" },
+  creatinine: { low: 0.7,  high: 1.3,  critLow: null, critHigh: 4.0,  unit: "mg/dL" },
+  bun:        { low: 7,    high: 20,   critLow: null, critHigh: null,  unit: "mg/dL" },
+  glucose:    { low: 70,   high: 100,  critLow: 50,   critHigh: 400,  unit: "mg/dL" },
+  troponin:   { low: 0,    high: 0.04, critLow: null, critHigh: 0.1,  unit: "ng/mL" },
+  lactate:    { low: 0.5,  high: 2.0,  critLow: null, critHigh: 4.0,  unit: "mmol/L" },
+  ph:         { low: 7.35, high: 7.45, critLow: 7.2,  critHigh: 7.55, unit: "" },
+  calcium:    { low: 8.5,  high: 10.5, critLow: 6.5,  critHigh: 13,   unit: "mg/dL" },
+  chloride:   { low: 98,   high: 106,  critLow: null, critHigh: null,  unit: "mEq/L" },
+  co2:        { low: 23,   high: 29,   critLow: null, critHigh: null,  unit: "mEq/L" },
+  bicarbonate:{ low: 22,   high: 28,   critLow: 10,   critHigh: null,  unit: "mEq/L" },
+};
+
+function matchLabRange(labName) {
+  const n = (labName || "").toLowerCase().trim();
+  for (const [key, range] of Object.entries(LAB_RANGES)) {
+    if (n.includes(key)) return range;
+  }
+  return null;
+}
+
+function getLabColor(lab) {
+  const val = parseFloat(lab.value);
+  if (isNaN(val)) return { color: null, level: "normal" };
+  const range = matchLabRange(lab.name);
+  if (!range) {
+    if (lab.flag === "H") return { color: "#DC2626", level: "high" };
+    if (lab.flag === "L") return { color: "#7C3AED", level: "low" };
+    return { color: null, level: "normal" };
+  }
+  if (range.critHigh != null && val >= range.critHigh) return { color: "#DC2626", bg: "rgba(248,113,113,0.12)", level: "critical_high" };
+  if (range.critLow != null && val <= range.critLow) return { color: "#DC2626", bg: "rgba(248,113,113,0.12)", level: "critical_low" };
+  if (val > range.high) return { color: "#EA580C", level: "high" };
+  if (val < range.low) return { color: "#7C3AED", level: "low" };
+  return { color: null, level: "normal" };
+}
+
 /* ── shared style tokens ────────────────────────────────── */
 const colors = {
   navy: "#0F172A",
@@ -248,6 +292,7 @@ function App() {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [ehr, setEhr] = useState(null);
+  const [ehrLoading, setEhrLoading] = useState(false);
   const [activeTopTab, setActiveTopTab] = useState("notes");
   const [activeNoteType, setActiveNoteType] = useState("hp");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
@@ -456,6 +501,7 @@ function App() {
   /* ── load EHR for selected patient ── */
   useEffect(() => {
     if (!selectedPatientId) return;
+    setEhrLoading(true);
     (async () => {
       try {
         const res = await fetch(
@@ -469,6 +515,8 @@ function App() {
         setSelectedLabDay(null);
       } catch (err) {
         console.error("EHR load error:", err);
+      } finally {
+        setEhrLoading(false);
       }
     })();
   }, [selectedPatientId]);
@@ -1079,7 +1127,7 @@ function App() {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="ehr-header-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div
               style={{
                 padding: "7px 16px",
@@ -1441,7 +1489,7 @@ function App() {
               <div style={{ flex: 1 }}>
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
@@ -1466,9 +1514,82 @@ function App() {
           );
         })()}
 
+        {/* ── PATIENT HEADER BAR (sticky) ── */}
+        {selectedPatientId && ehr && (
+          <div
+            className="ehr-patient-header"
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 50,
+              marginBottom: 14,
+              padding: "12px 18px",
+              borderRadius: 14,
+              background: "linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F172A 100%)",
+              border: "1px solid rgba(94,234,212,0.2)",
+              boxShadow: "0 4px 20px rgba(15,23,42,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0 }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: 10,
+                background: "linear-gradient(135deg, #0D9488, #14B8A6)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 15, color: "#FFFFFF", fontWeight: 800, flexShrink: 0,
+              }}>
+                {selectedPatientId}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.01em" }}>
+                  Patient #{selectedPatientId}
+                </div>
+                <div style={{ fontSize: 11, color: "#94A3B8", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 340 }}>
+                  {PATIENT_CHIEF_COMPLAINTS_EHR[String(selectedPatientId)] || ""}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
+              {ehr?.overview?.admission_date && (
+                <div style={{
+                  padding: "4px 10px", borderRadius: 8,
+                  background: "rgba(14,165,233,0.12)", fontSize: 11,
+                  color: "#7DD3FC", fontWeight: 600, whiteSpace: "nowrap",
+                }}>
+                  Admitted: {ehr.overview.admission_date}
+                </div>
+              )}
+              {ehr?.overview?.brief_reason && (
+                <div style={{
+                  padding: "4px 10px", borderRadius: 8,
+                  background: "rgba(94,234,212,0.1)", fontSize: 11,
+                  color: "#5EEAD4", fontWeight: 600, maxWidth: 260,
+                  whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                }}>
+                  {ehr.overview.brief_reason}
+                </div>
+              )}
+              {ehr?.overview?.allergies && (
+                <div style={{
+                  padding: "4px 10px", borderRadius: 8,
+                  background: "rgba(248,113,113,0.15)", fontSize: 11,
+                  color: "#FCA5A5", fontWeight: 700, whiteSpace: "nowrap",
+                }}>
+                  ⚠ Allergies: {typeof ehr.overview.allergies === "string" ? ehr.overview.allergies : Array.isArray(ehr.overview.allergies) ? ehr.overview.allergies.join(", ") : "See chart"}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── TOP TABS ── */}
         <section style={{ marginBottom: 12 }}>
           <div
+            className="ehr-top-tabs"
             style={{
               display: "flex",
               gap: 6,
@@ -1529,16 +1650,43 @@ function App() {
               minHeight: 320,
             }}
           >
+            {/* ── Loading skeleton ── */}
+            {ehrLoading && (
+              <div style={{ padding: "20px 0" }}>
+                <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+                  {[80, 60, 50, 70, 60, 50, 80].map((w, i) => (
+                    <div key={i} className="skeleton-block" style={{ width: w, height: 32, borderRadius: 10 }} />
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div style={{ width: 150, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {[1,2,3,4,5].map(i => <div key={i} className="skeleton-line" style={{ height: 28, width: "100%" }} />)}
+                  </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div className="skeleton-line" style={{ height: 16, width: "60%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "90%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "80%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "85%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "70%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "95%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "60%" }} />
+                    <div className="skeleton-line" style={{ height: 12, width: "75%" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!ehrLoading && (<>
             {/* ─── NOTES TAB ─── */}
             {activeTopTab === "notes" && (
-              <div style={{ display: "flex", gap: 14, minHeight: 400 }}>
+              <div className="ehr-notes-layout" style={{ display: "flex", gap: 14, minHeight: 400 }}>
                 {/* Note type sidebar */}
                 <div style={{ width: 150, flexShrink: 0 }}>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: 700,
-                      letterSpacing: "0.1em",
+                      letterSpacing: "0.08em",
                       textTransform: "uppercase",
                       color: "#94A3B8",
                       marginBottom: 8,
@@ -1592,9 +1740,9 @@ function App() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: 700,
-                      letterSpacing: "0.1em",
+                      letterSpacing: "0.08em",
                       textTransform: "uppercase",
                       color: "#94A3B8",
                       marginBottom: 8,
@@ -1602,7 +1750,7 @@ function App() {
                   >
                     {activeNoteType.toUpperCase()} notes
                   </div>
-                  <div style={{ display: "flex", gap: 12, height: 420 }}>
+                  <div className="ehr-notes-content" style={{ display: "flex", gap: 12, height: 420 }}>
                     {/* Note list */}
                     <div
                       style={{
@@ -1676,11 +1824,11 @@ function App() {
                         borderRadius: 12,
                         border: "1px solid rgba(226,232,240,0.8)",
                         background: "#FFFFFF",
-                        padding: "16px 20px",
+                        padding: "18px 22px",
                         overflowY: "auto",
-                        fontSize: 13,
+                        fontSize: 13.5,
                         whiteSpace: "pre-wrap",
-                        lineHeight: 1.65,
+                        lineHeight: 1.75,
                         color: "#1E293B",
                       }}
                     >
@@ -1935,14 +2083,27 @@ function App() {
                       </thead>
                       <tbody>
                         {dayLabs.map((lab, idx) => {
-                          const flagColor = lab.flag === "H" ? "#DC2626" : lab.flag === "L" ? "#7C3AED" : null;
+                          const labColor = getLabColor(lab);
+                          const isCritical = labColor.level === "critical_high" || labColor.level === "critical_low";
+                          const rowBg = isCritical
+                            ? "rgba(248,113,113,0.08)"
+                            : idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC";
                           return (
-                            <tr key={idx} style={{ background: idx % 2 === 0 ? "#FFFFFF" : "#F8FAFC" }}>
-                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 600, color: flagColor || "#0F172A" }}>
+                            <tr key={idx} style={{ background: rowBg }}>
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 600, color: labColor.color || "#0F172A" }}>
                                 {lab.name}
                               </td>
-                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 600, color: flagColor || "#0F172A" }}>
-                                {lab.value}
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 700, color: labColor.color || "#0F172A" }}>
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                  {lab.value}
+                                  {isCritical && (
+                                    <span style={{
+                                      fontSize: 9, fontWeight: 800, color: "#FFFFFF",
+                                      background: "#DC2626", padding: "1px 5px", borderRadius: 4,
+                                      letterSpacing: "0.04em",
+                                    }}>CRIT</span>
+                                  )}
+                                </span>
                               </td>
                               <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", color: "#64748B" }}>
                                 {lab.unit || "—"}
@@ -1950,14 +2111,45 @@ function App() {
                               <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", color: "#64748B" }}>
                                 {lab.normal_range || "—"}
                               </td>
-                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9", fontWeight: 700, color: flagColor || "#64748B" }}>
-                                {lab.flag || "—"}
+                              <td style={{ padding: "9px 14px", borderBottom: "1px solid #F1F5F9" }}>
+                                {lab.flag ? (
+                                  <span style={{
+                                    display: "inline-flex", alignItems: "center", gap: 3,
+                                    padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700,
+                                    background: lab.flag === "H" ? "rgba(220,38,38,0.1)" : lab.flag === "L" ? "rgba(124,58,237,0.1)" : "transparent",
+                                    color: lab.flag === "H" ? "#DC2626" : lab.flag === "L" ? "#7C3AED" : "#64748B",
+                                  }}>
+                                    {lab.flag === "H" ? "↑ High" : lab.flag === "L" ? "↓ Low" : lab.flag}
+                                  </span>
+                                ) : (
+                                  <span style={{ color: "#94A3B8" }}>—</span>
+                                )}
                               </td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* ── Lab color legend ── */}
+                  <div style={{
+                    marginTop: 12, padding: "8px 14px", borderRadius: 10,
+                    background: "rgba(241,245,249,0.7)", border: "1px solid rgba(226,232,240,0.6)",
+                    display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center",
+                  }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.06em" }}>Legend:</span>
+                    {[
+                      { color: "#DC2626", bg: "rgba(220,38,38,0.1)", label: "Critical", badge: "CRIT" },
+                      { color: "#EA580C", bg: "rgba(234,88,12,0.1)", label: "Abnormal High" },
+                      { color: "#7C3AED", bg: "rgba(124,58,237,0.1)", label: "Abnormal Low" },
+                      { color: "#15803D", bg: "rgba(21,128,61,0.08)", label: "Normal" },
+                    ].map(item => (
+                      <span key={item.label} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: item.color, fontWeight: 600 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: 3, background: item.bg || item.color, border: `1.5px solid ${item.color}`, display: "inline-block" }} />
+                        {item.label}
+                      </span>
+                    ))}
                   </div>
                 </div>
               );
@@ -1977,30 +2169,32 @@ function App() {
                     {ehr.imaging.map((img) => (
                       <div
                         key={img.id}
+                        className="ehr-card-hover"
                         style={{
-                          padding: "14px 16px",
+                          padding: "14px 16px 14px 20px",
                           borderRadius: 12,
                           background: "#FFFFFF",
                           border: "1px solid #E2E8F0",
+                          borderLeft: "4px solid #0EA5E9",
+                          position: "relative",
                         }}
                       >
-                        <div
-                          style={{
-                            fontWeight: 700,
-                            color: colors.navy,
-                            fontSize: 13,
-                            marginBottom: 4,
-                          }}
-                        >
-                          {img.modality} {img.body_part}{" "}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <rect x="2" y="2" width="20" height="20" rx="2" />
+                            <path d="M7 2v20" />
+                            <path d="M17 2v20" />
+                            <path d="M2 12h20" />
+                            <path d="M2 7h5" />
+                            <path d="M2 17h5" />
+                            <path d="M17 7h5" />
+                            <path d="M17 17h5" />
+                          </svg>
+                          <span style={{ fontWeight: 700, color: colors.navy, fontSize: 13 }}>
+                            {img.modality} {img.body_part}
+                          </span>
                           {img.timestamp && (
-                            <span
-                              style={{
-                                fontWeight: 400,
-                                color: "#94A3B8",
-                                fontSize: 12,
-                              }}
-                            >
+                            <span style={{ fontWeight: 400, color: "#94A3B8", fontSize: 12 }}>
                               · {img.timestamp}
                             </span>
                           )}
@@ -2009,7 +2203,8 @@ function App() {
                           style={{
                             fontSize: 13,
                             color: "#334155",
-                            lineHeight: 1.55,
+                            lineHeight: 1.65,
+                            marginLeft: 23,
                           }}
                         >
                           {img.impression}
@@ -2018,7 +2213,7 @@ function App() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState text="No imaging reports for this case." />
+                  <EmptyState text="No imaging reports for this case." icon="imaging" />
                 )}
               </div>
             )}
@@ -2029,7 +2224,7 @@ function App() {
 
                 {/* ── VITALS TABLE ── */}
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Vitals Trends</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Vitals Trends</div>
                   {ehr?.summary?.vitals?.length ? (
                     <div style={{ overflowX: "auto" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
@@ -2084,7 +2279,7 @@ function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     {ehr.summary.respiratory?.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Respiratory</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Respiratory</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           {ehr.summary.respiratory.map((r, i) => (
                             <div key={i} style={{ padding: "8px 12px", borderRadius: 8, background: "#EFF6FF", border: "1px solid #BFDBFE", fontSize: 12, color: "#1E40AF", lineHeight: 1.5 }}>{r}</div>
@@ -2094,7 +2289,7 @@ function App() {
                     )}
                     {ehr.summary.lines?.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Lines / Access</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Lines / Access</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           {ehr.summary.lines.map((l, i) => (
                             <div key={i} style={{ padding: "8px 12px", borderRadius: 8, background: "#F0FDF4", border: "1px solid #BBF7D0", fontSize: 12, color: "#15803D", lineHeight: 1.5 }}>{l}</div>
@@ -2122,28 +2317,30 @@ function App() {
                     {ehr.ekgs.map((e) => (
                       <div
                         key={e.id}
+                        className="ehr-card-hover"
                         style={{
-                          padding: "14px 16px",
+                          padding: "14px 16px 14px 20px",
                           borderRadius: 12,
                           background: "#FFFFFF",
                           border: "1px solid #E2E8F0",
+                          borderLeft: "4px solid #F43F5E",
+                          position: "relative",
                         }}
                       >
-                        <div
-                          style={{
-                            fontWeight: 700,
-                            color: colors.navy,
-                            fontSize: 13,
-                            marginBottom: 4,
-                          }}
-                        >
-                          {e.timestamp || "EKG"}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F43F5E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                          </svg>
+                          <span style={{ fontWeight: 700, color: colors.navy, fontSize: 13 }}>
+                            {e.timestamp || "EKG"}
+                          </span>
                         </div>
                         <div
                           style={{
                             fontSize: 13,
                             color: "#334155",
-                            lineHeight: 1.55,
+                            lineHeight: 1.65,
+                            marginLeft: 24,
                           }}
                         >
                           {e.interpretation}
@@ -2152,7 +2349,7 @@ function App() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState text="No EKG interpretations for this case." />
+                  <EmptyState text="No EKG interpretations for this case." icon="ekgs" />
                 )}
               </div>
             )}
@@ -2171,30 +2368,25 @@ function App() {
                     {ehr.procedures.map((p) => (
                       <div
                         key={p.id}
+                        className="ehr-card-hover"
                         style={{
-                          padding: "14px 16px",
+                          padding: "14px 16px 14px 20px",
                           borderRadius: 12,
                           background: "#FFFFFF",
                           border: "1px solid #E2E8F0",
+                          borderLeft: "4px solid #8B5CF6",
+                          position: "relative",
                         }}
                       >
-                        <div
-                          style={{
-                            fontWeight: 700,
-                            color: colors.navy,
-                            fontSize: 13,
-                            marginBottom: 4,
-                          }}
-                        >
-                          {p.name}{" "}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                          <span style={{ fontWeight: 700, color: colors.navy, fontSize: 13 }}>
+                            {p.name}
+                          </span>
                           {p.timestamp && (
-                            <span
-                              style={{
-                                fontWeight: 400,
-                                color: "#94A3B8",
-                                fontSize: 12,
-                              }}
-                            >
+                            <span style={{ fontWeight: 400, color: "#94A3B8", fontSize: 12 }}>
                               · {p.timestamp}
                             </span>
                           )}
@@ -2204,7 +2396,8 @@ function App() {
                             style={{
                               fontSize: 13,
                               color: "#334155",
-                              lineHeight: 1.55,
+                              lineHeight: 1.65,
+                              marginLeft: 22,
                             }}
                           >
                             {p.description}
@@ -2214,11 +2407,12 @@ function App() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState text="No procedures documented in this case." />
+                  <EmptyState text="No procedures documented in this case." icon="procedures" />
                 )}
               </div>
             )}
 
+            </>)}
           </section>
 
           {/* ── TEACHING NOTE AREA ── */}
@@ -2242,9 +2436,9 @@ function App() {
               <div>
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: 700,
-                    letterSpacing: "0.1em",
+                    letterSpacing: "0.08em",
                     textTransform: "uppercase",
                     color: colors.teal,
                     marginBottom: 3,
@@ -2617,20 +2811,40 @@ Discharge Plan:
 }
 
 /* ── empty state helper ── */
-function EmptyState({ text }) {
+function EmptyState({ text, icon }) {
+  const icons = {
+    imaging: (
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+        <rect x="2" y="2" width="20" height="20" rx="2" />
+        <path d="M7 2v20" /><path d="M17 2v20" />
+        <path d="M2 12h20" /><path d="M2 7h5" /><path d="M2 17h5" />
+        <path d="M17 7h5" /><path d="M17 17h5" />
+      </svg>
+    ),
+    ekgs: (
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    ),
+    procedures: (
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+      </svg>
+    ),
+  };
   return (
     <div
       style={{
         textAlign: "center",
-        padding: "40px 20px",
+        padding: "48px 20px",
         color: "#94A3B8",
         fontSize: 13,
       }}
     >
-      <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.5 }}>
-        {"📋"}
+      <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}>
+        {icons[icon] || <span style={{ fontSize: 28, opacity: 0.5 }}>📋</span>}
       </div>
-      {text}
+      <div style={{ fontWeight: 500 }}>{text}</div>
     </div>
   );
 }

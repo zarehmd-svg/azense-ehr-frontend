@@ -21,3 +21,109 @@ body { margin: 0; }
   max-width: 100%;
   min-height: 100svh;
 }
+
+/* ── Teal-tinted thin scrollbars ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(14,165,233,0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(14,165,233,0.35);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(14,165,233,0.18) transparent;
+}
+
+/* ── CSS-based hover states ── */
+.ehr-card-hover {
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+.ehr-card-hover:hover {
+  box-shadow: 0 6px 20px rgba(14,165,233,0.12), 0 2px 6px rgba(15,23,42,0.06);
+  transform: translateY(-1px);
+  border-color: rgba(14,165,233,0.3) !important;
+}
+
+.ehr-btn-hover {
+  transition: all 0.15s ease;
+}
+.ehr-btn-hover:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* ── Loading skeleton animation ── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+.skeleton-block {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Responsive polish ── */
+@media (max-width: 768px) {
+  .ehr-top-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ehr-top-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .ehr-top-tabs button {
+    flex-shrink: 0;
+  }
+  .ehr-card-stack {
+    grid-template-columns: 1fr !important;
+  }
+  .ehr-header-right {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+  .ehr-notes-layout {
+    flex-direction: column !important;
+  }
+  .ehr-notes-layout > div:first-child {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px !important;
+  }
+  .ehr-notes-layout > div:first-child button {
+    border-left: none !important;
+    border-bottom: 2px solid transparent;
+  }
+  .ehr-notes-content {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .ehr-notes-content > div:first-child {
+    width: 100% !important;
+    max-height: 200px;
+  }
+  .ehr-patient-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+}
