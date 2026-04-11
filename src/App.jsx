@@ -1576,16 +1576,7 @@ function App() {
                   Admitted: {ehr.overview.admission_date}
                 </div>
               )}
-              {ehr?.overview?.brief_reason && (
-                <div style={{
-                  padding: "4px 10px", borderRadius: 8,
-                  background: "rgba(94,234,212,0.1)", fontSize: 11,
-                  color: "#5EEAD4", fontWeight: 600, maxWidth: 260,
-                  whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                }}>
-                  {ehr.overview.brief_reason}
-                </div>
-              )}
+
               {ehr?.overview?.allergies && (
                 <div style={{
                   padding: "4px 10px", borderRadius: 8,
