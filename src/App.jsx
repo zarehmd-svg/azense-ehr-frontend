@@ -107,7 +107,7 @@ const PATIENT_CHIEF_COMPLAINTS_EHR = {
   "100": "Worsening shortness of breath and leg swelling for 5 days"
 };
 
-const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures", "reviews"];
+const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures"];
 const TOP_TAB_LABELS = {
   notes: "Notes",
   medications: "Meds",
@@ -116,7 +116,7 @@ const TOP_TAB_LABELS = {
   summary: "Summary",
   ekgs: "EKGs",
   procedures: "Procedures",
-  reviews: "★ Reviews",
+
 };
 
 const NOTE_TYPES = [
@@ -261,6 +261,7 @@ function App() {
   const [reviews, setReviews] = useState([]);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const _storeAuthData = (json, usernameOverride) => {
     window.localStorage.setItem("azense_ehr_logged_in", "true");
@@ -1133,6 +1134,42 @@ function App() {
               </svg>
               AZense Training
             </a>
+
+            {/* ── Reviews button ── */}
+            <button
+              onClick={() => setShowReviewModal(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "7px 14px",
+                borderRadius: 999,
+                border: "1.5px solid rgba(245,158,11,0.35)",
+                background: "linear-gradient(135deg, #FFFBEB, #FEF3C7)",
+                cursor: "pointer",
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#92400E",
+                letterSpacing: "0.02em",
+                whiteSpace: "nowrap",
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 8px rgba(245,158,11,0.15)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #FEF3C7, #FDE68A)";
+                e.currentTarget.style.borderColor = "rgba(245,158,11,0.55)";
+                e.currentTarget.style.boxShadow = "0 4px 14px rgba(245,158,11,0.30)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #FFFBEB, #FEF3C7)";
+                e.currentTarget.style.borderColor = "rgba(245,158,11,0.35)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(245,158,11,0.15)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <span style={{ fontSize: 14 }}>★</span> Review
+            </button>
 
             <button
               onClick={() => {
@@ -2182,300 +2219,6 @@ function App() {
               </div>
             )}
 
-            {/* ─── REVIEWS TAB ─── */}
-            {activeTopTab === "reviews" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {/* ── Submit Review Form ── */}
-                {reviewSubmitted ? (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      padding: "40px 20px",
-                      borderRadius: 16,
-                      background: "linear-gradient(135deg, #ECFDF5, #D1FAE5)",
-                      border: "1px solid #A7F3D0",
-                    }}
-                  >
-                    <div style={{ fontSize: 48, marginBottom: 12 }}>✓</div>
-                    <div
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: "#065F46",
-                        marginBottom: 4,
-                      }}
-                    >
-                      Thank you for your review!
-                    </div>
-                    <div style={{ fontSize: 13, color: "#047857" }}>
-                      Your feedback helps us improve.
-                    </div>
-                  </div>
-                ) : (
-                  <form
-                    onSubmit={handleReviewSubmit}
-                    style={{
-                      padding: "20px",
-                      borderRadius: 16,
-                      background: "#FFFFFF",
-                      border: "1px solid #E2E8F0",
-                      boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 14,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 15,
-                        color: "#0F172A",
-                      }}
-                    >
-                      Leave a Review
-                    </div>
-
-                    {/* Star Rating */}
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          key={star}
-                          onClick={() => setReviewStars(star)}
-                          style={{
-                            fontSize: 28,
-                            cursor: "pointer",
-                            color:
-                              star <= reviewStars ? "#F59E0B" : "#CBD5E1",
-                            transition: "color 0.15s ease",
-                          }}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Initials Input */}
-                    <input
-                      type="text"
-                      placeholder="e.g. J.C."
-                      value={reviewInitials}
-                      onChange={(e) => setReviewInitials(e.target.value)}
-                      maxLength={10}
-                      style={{
-                        padding: "10px 14px",
-                        borderRadius: 10,
-                        border: "1px solid #E2E8F0",
-                        fontSize: 13,
-                        outline: "none",
-                        width: 120,
-                      }}
-                    />
-
-                    {/* Comment Textarea */}
-                    <textarea
-                      placeholder="Share your experience with AZense..."
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      rows={4}
-                      style={{
-                        padding: "10px 14px",
-                        borderRadius: 10,
-                        border: "1px solid #E2E8F0",
-                        fontSize: 13,
-                        outline: "none",
-                        resize: "vertical",
-                        fontFamily: "inherit",
-                      }}
-                    />
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={
-                        reviewLoading ||
-                        !reviewStars ||
-                        !reviewInitials.trim() ||
-                        !reviewComment.trim()
-                      }
-                      style={{
-                        padding: "10px 24px",
-                        borderRadius: 10,
-                        border: "none",
-                        background:
-                          reviewLoading ||
-                          !reviewStars ||
-                          !reviewInitials.trim() ||
-                          !reviewComment.trim()
-                            ? "#CBD5E1"
-                            : "linear-gradient(135deg, #0284C7, #0EA5E9)",
-                        color: "#FFFFFF",
-                        fontWeight: 700,
-                        fontSize: 13,
-                        cursor:
-                          reviewLoading ||
-                          !reviewStars ||
-                          !reviewInitials.trim() ||
-                          !reviewComment.trim()
-                            ? "not-allowed"
-                            : "pointer",
-                        alignSelf: "flex-start",
-                        boxShadow:
-                          reviewLoading ||
-                          !reviewStars ||
-                          !reviewInitials.trim() ||
-                          !reviewComment.trim()
-                            ? "none"
-                            : "0 4px 12px rgba(14,165,233,0.25)",
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      {reviewLoading ? "Submitting..." : "Submit Review"}
-                    </button>
-                  </form>
-                )}
-
-                {/* ── Existing Reviews ── */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
-                  }}
-                >
-                  {reviews.length === 0 ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: "40px 20px",
-                        color: "#94A3B8",
-                        fontSize: 13,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 28,
-                          marginBottom: 8,
-                          opacity: 0.5,
-                        }}
-                      >
-                        ★
-                      </div>
-                      Be the first to leave a review!
-                    </div>
-                  ) : (
-                    reviews.map((r, idx) => (
-                      <div
-                        key={r.id || idx}
-                        style={{
-                          padding: "16px 18px",
-                          borderRadius: 12,
-                          background: "#FFFFFF",
-                          border: "1px solid #E2E8F0",
-                          boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
-                        }}
-                      >
-                        {/* Stars */}
-                        <div style={{ marginBottom: 8 }}>
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <span
-                              key={s}
-                              style={{
-                                fontSize: 16,
-                                color:
-                                  s <= (r.rating || 0)
-                                    ? "#F59E0B"
-                                    : "#CBD5E1",
-                              }}
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Initials + Verified Badge */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                            marginBottom: 6,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              fontSize: 13,
-                              color: "#0F172A",
-                            }}
-                          >
-                            {r.initials}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: "#10B981",
-                              fontWeight: 600,
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 3,
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 16,
-                                height: 16,
-                                borderRadius: "50%",
-                                background: "#D1FAE5",
-                                fontSize: 10,
-                                color: "#10B981",
-                              }}
-                            >
-                              ✓
-                            </span>
-                            Verified
-                          </span>
-                        </div>
-
-                        {/* Comment */}
-                        <div
-                          style={{
-                            fontSize: 13,
-                            color: "#334155",
-                            lineHeight: 1.55,
-                            fontStyle: "italic",
-                          }}
-                        >
-                          &ldquo;{r.comment}&rdquo;
-                        </div>
-
-                        {/* Timestamp */}
-                        {r.created_at && (
-                          <div
-                            style={{
-                              fontSize: 11,
-                              color: "#94A3B8",
-                              marginTop: 8,
-                            }}
-                          >
-                            {new Date(r.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
           </section>
 
           {/* ── TEACHING NOTE AREA ── */}
@@ -2726,6 +2469,146 @@ Discharge Plan:
               allowFullScreen
               style={{ width: "100%", height: "100%", border: "none" }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* ── Review Modal ── */}
+      {showReviewModal && (
+        <div
+          onClick={() => { setShowReviewModal(false); setReviewSubmitted(false); }}
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(15,23,42,0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            animation: "fadeIn 0.2s ease",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#FFFFFF",
+              borderRadius: 20,
+              padding: "28px 32px",
+              width: "100%",
+              maxWidth: 420,
+              boxShadow: "0 25px 60px rgba(0,0,0,0.3)",
+              position: "relative",
+            }}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => { setShowReviewModal(false); setReviewSubmitted(false); }}
+              style={{
+                position: "absolute", top: 14, right: 16,
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 20, color: "#94A3B8", lineHeight: 1,
+              }}
+            >×</button>
+
+            {reviewSubmitted ? (
+              <div style={{ textAlign: "center", padding: "30px 0" }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: "50%",
+                  background: "linear-gradient(135deg, #10B981, #047857)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  margin: "0 auto 16px", fontSize: 28, color: "#FFF",
+                }}>✓</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#047857", marginBottom: 6 }}>Thank you for your review!</div>
+                <div style={{ fontSize: 13, color: "#059669" }}>Your feedback helps us improve AZense.</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                  <span style={{ fontSize: 22, color: "#F59E0B" }}>★</span>
+                  <span style={{ fontSize: 17, fontWeight: 700, color: "#0F172A" }}>Leave a Review</span>
+                </div>
+
+                <form onSubmit={handleReviewSubmit}>
+                  {/* Star rating */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 8 }}>Rating</div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          onClick={() => setReviewStars(star)}
+                          style={{
+                            fontSize: 32, cursor: "pointer", userSelect: "none",
+                            color: star <= reviewStars ? "#F59E0B" : "#D1D5DB",
+                            transition: "color 0.15s ease, transform 0.15s ease",
+                            transform: star <= reviewStars ? "scale(1.15)" : "scale(1)",
+                          }}
+                        >★</span>
+                      ))}
+                      {reviewStars > 0 && (
+                        <span style={{ fontSize: 13, color: "#92400E", alignSelf: "center", marginLeft: 6, fontWeight: 700 }}>
+                          {reviewStars}/5
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Initials */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Your Initials</div>
+                    <input
+                      type="text" placeholder="e.g. J.C." value={reviewInitials}
+                      onChange={(e) => setReviewInitials(e.target.value)} maxLength={10}
+                      style={{
+                        width: "100%", padding: "10px 14px", borderRadius: 10,
+                        border: "1.5px solid #E2E8F0", fontSize: 14, backgroundColor: "#F8FAFC",
+                        color: "#0F172A", outline: "none", boxSizing: "border-box",
+                        transition: "border-color 0.15s ease",
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#F59E0B"}
+                      onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}
+                    />
+                  </div>
+
+                  {/* Comment */}
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>Your Review</div>
+                    <textarea
+                      placeholder="Share your experience with AZense..." value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)} rows={4}
+                      style={{
+                        width: "100%", padding: "10px 14px", borderRadius: 10,
+                        border: "1.5px solid #E2E8F0", fontSize: 14, backgroundColor: "#F8FAFC",
+                        color: "#0F172A", outline: "none", resize: "vertical",
+                        fontFamily: "inherit", boxSizing: "border-box",
+                        transition: "border-color 0.15s ease",
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = "#F59E0B"}
+                      onBlur={(e) => e.target.style.borderColor = "#E2E8F0"}
+                    />
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={reviewLoading || !reviewStars || !reviewInitials.trim() || !reviewComment.trim()}
+                    style={{
+                      width: "100%", padding: "12px", borderRadius: 12, border: "none",
+                      background: (!reviewStars || !reviewInitials.trim() || !reviewComment.trim())
+                        ? "#CBD5E1" : "linear-gradient(135deg, #0284C7, #0EA5E9)",
+                      color: "#FFFFFF", fontSize: 14, fontWeight: 700,
+                      cursor: (!reviewStars || !reviewInitials.trim() || !reviewComment.trim()) ? "not-allowed" : "pointer",
+                      boxShadow: (!reviewStars || !reviewInitials.trim() || !reviewComment.trim())
+                        ? "none" : "0 4px 14px rgba(14,165,233,0.35)",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {reviewLoading ? "Submitting..." : "Submit Review"}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}
