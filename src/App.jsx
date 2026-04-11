@@ -534,6 +534,17 @@ function App() {
     })();
   }, [selectedPatientId]);
 
+  /* ── postMessage bridge: let parent (training app) request the note text ── */
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === "GET_EHR_NOTE") {
+        window.parent.postMessage({ type: "EHR_NOTE_TEXT", text: ownNote || "" }, "*");
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  });
+
   /* ── fetch reviews ── */
   const fetchReviews = async () => {
     try {
