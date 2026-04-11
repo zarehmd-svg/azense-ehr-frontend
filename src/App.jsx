@@ -251,9 +251,14 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
+// ── Embed mode: skip login when loaded inside an iframe with ?embed=true&patient=N ──
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const EMBED_MODE = URL_PARAMS.get("embed") === "true";
+const EMBED_PATIENT = URL_PARAMS.get("patient");
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(
-    () => window.localStorage.getItem("azense_ehr_logged_in") === "true"
+    () => EMBED_MODE || window.localStorage.getItem("azense_ehr_logged_in") === "true"
   );
   const [loginError, setLoginError] = useState("");
   const [loginUsername, setLoginUsername] = useState("");
@@ -485,12 +490,20 @@ function App() {
           ? json.data
           : [];
         let filtered = list;
-        // Trial users can only see allowed patients
-        if (allowedPatients && allowedPatients.length > 0) {
+        // Trial users can only see allowed patients (skip in embed mode)
+        if (!EMBED_MODE && allowedPatients && allowedPatients.length > 0) {
           filtered = filtered.filter(p => allowedPatients.includes(String(p.id)));
         }
         setPatients(filtered);
-        if (filtered.length > 0) setSelectedPatientId(filtered[0].id);
+        // In embed mode, auto-select the patient from URL param
+        if (EMBED_MODE && EMBED_PATIENT) {
+          const embedPid = parseInt(EMBED_PATIENT, 10) || EMBED_PATIENT;
+          const match = filtered.find(p => String(p.id) === String(embedPid));
+          if (match) setSelectedPatientId(match.id);
+          else if (filtered.length > 0) setSelectedPatientId(filtered[0].id);
+        } else if (filtered.length > 0) {
+          setSelectedPatientId(filtered[0].id);
+        }
       } catch (err) {
         console.error("Patient load error:", err);
         setPatients([]);
@@ -972,8 +985,8 @@ function App() {
           backdropFilter: "blur(12px)",
         }}
       >
-        {/* Trial banner */}
-        {isTrial && trialDaysLeft > 0 && (
+        {/* Trial banner (hidden in embed mode) */}
+        {!EMBED_MODE && isTrial && trialDaysLeft > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
@@ -1060,8 +1073,8 @@ function App() {
           </div>
         )}
 
-        {/* ── HEADER ── */}
-        <header
+        {/* ── HEADER ── (hidden in embed mode) */}
+        {!EMBED_MODE && <header
           style={{
             display: "flex",
             alignItems: "center",
@@ -1271,10 +1284,10 @@ function App() {
               Log out
             </button>
           </div>
-        </header>
+        </header>}
 
-        {/* ── PATIENT SELECTOR ── */}
-        <section
+        {/* ── PATIENT SELECTOR ── (hidden in embed mode) */}
+        {!EMBED_MODE && <section
           style={{
             marginBottom: 16,
             padding: "16px 18px",
@@ -1450,7 +1463,7 @@ function App() {
               Reason: {ehr.overview.brief_reason}
             </div>
           )}
-        </section>
+        </section>}
 
         {/* ── NOTE ASSIGNMENT BANNER ── */}
         {(() => {
