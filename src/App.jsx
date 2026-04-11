@@ -107,7 +107,7 @@ const PATIENT_CHIEF_COMPLAINTS_EHR = {
   "100": "Worsening shortness of breath and leg swelling for 5 days"
 };
 
-const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures"];
+const TOP_TABS = ["notes", "medications", "labs", "imaging", "summary", "ekgs", "procedures", "reviews"];
 const TOP_TAB_LABELS = {
   notes: "Notes",
   medications: "Meds",
@@ -116,6 +116,7 @@ const TOP_TAB_LABELS = {
   summary: "Summary",
   ekgs: "EKGs",
   procedures: "Procedures",
+  reviews: "★ Reviews",
 };
 
 const NOTE_TYPES = [
@@ -254,6 +255,12 @@ function App() {
   const [selectedLabPanel, setSelectedLabPanel] = useState(null);
   const [selectedLabDay, setSelectedLabDay] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [reviewStars, setReviewStars] = useState(0);
+  const [reviewInitials, setReviewInitials] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   const _storeAuthData = (json, usernameOverride) => {
     window.localStorage.setItem("azense_ehr_logged_in", "true");
@@ -464,6 +471,53 @@ function App() {
       }
     })();
   }, [selectedPatientId]);
+
+  /* ── fetch reviews ── */
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/reviews`);
+      if (res.ok) {
+        const json = await res.json();
+        setReviews(Array.isArray(json) ? json : []);
+      }
+    } catch (err) {
+      console.error("Reviews load error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewStars || !reviewInitials.trim() || !reviewComment.trim()) return;
+    setReviewLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          initials: reviewInitials.trim(),
+          rating: reviewStars,
+          comment: reviewComment.trim(),
+          source: "ehr",
+        }),
+      });
+      if (res.ok) {
+        setReviewSubmitted(true);
+        setReviewStars(0);
+        setReviewInitials("");
+        setReviewComment("");
+        fetchReviews();
+        setTimeout(() => setReviewSubmitted(false), 3000);
+      }
+    } catch (err) {
+      console.error("Review submit error:", err);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   const notesOfType =
     ehr?.notes?.filter((n) => n.type === activeNoteType) ?? [];
@@ -2125,6 +2179,301 @@ function App() {
                 ) : (
                   <EmptyState text="No procedures documented in this case." />
                 )}
+              </div>
+            )}
+
+            {/* ─── REVIEWS TAB ─── */}
+            {activeTopTab === "reviews" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {/* ── Submit Review Form ── */}
+                {reviewSubmitted ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "40px 20px",
+                      borderRadius: 16,
+                      background: "linear-gradient(135deg, #ECFDF5, #D1FAE5)",
+                      border: "1px solid #A7F3D0",
+                    }}
+                  >
+                    <div style={{ fontSize: 48, marginBottom: 12 }}>✓</div>
+                    <div
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: "#065F46",
+                        marginBottom: 4,
+                      }}
+                    >
+                      Thank you for your review!
+                    </div>
+                    <div style={{ fontSize: 13, color: "#047857" }}>
+                      Your feedback helps us improve.
+                    </div>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleReviewSubmit}
+                    style={{
+                      padding: "20px",
+                      borderRadius: 16,
+                      background: "#FFFFFF",
+                      border: "1px solid #E2E8F0",
+                      boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 14,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 15,
+                        color: "#0F172A",
+                      }}
+                    >
+                      Leave a Review
+                    </div>
+
+                    {/* Star Rating */}
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          onClick={() => setReviewStars(star)}
+                          style={{
+                            fontSize: 28,
+                            cursor: "pointer",
+                            color:
+                              star <= reviewStars ? "#F59E0B" : "#CBD5E1",
+                            transition: "color 0.15s ease",
+                          }}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Initials Input */}
+                    <input
+                      type="text"
+                      placeholder="e.g. J.C."
+                      value={reviewInitials}
+                      onChange={(e) => setReviewInitials(e.target.value)}
+                      maxLength={10}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: "1px solid #E2E8F0",
+                        fontSize: 13,
+                        outline: "none",
+                        width: 120,
+                      }}
+                    />
+
+                    {/* Comment Textarea */}
+                    <textarea
+                      placeholder="Share your experience with AZense..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      rows={4}
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: "1px solid #E2E8F0",
+                        fontSize: 13,
+                        outline: "none",
+                        resize: "vertical",
+                        fontFamily: "inherit",
+                      }}
+                    />
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={
+                        reviewLoading ||
+                        !reviewStars ||
+                        !reviewInitials.trim() ||
+                        !reviewComment.trim()
+                      }
+                      style={{
+                        padding: "10px 24px",
+                        borderRadius: 10,
+                        border: "none",
+                        background:
+                          reviewLoading ||
+                          !reviewStars ||
+                          !reviewInitials.trim() ||
+                          !reviewComment.trim()
+                            ? "#CBD5E1"
+                            : "linear-gradient(135deg, #0284C7, #0EA5E9)",
+                        color: "#FFFFFF",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor:
+                          reviewLoading ||
+                          !reviewStars ||
+                          !reviewInitials.trim() ||
+                          !reviewComment.trim()
+                            ? "not-allowed"
+                            : "pointer",
+                        alignSelf: "flex-start",
+                        boxShadow:
+                          reviewLoading ||
+                          !reviewStars ||
+                          !reviewInitials.trim() ||
+                          !reviewComment.trim()
+                            ? "none"
+                            : "0 4px 12px rgba(14,165,233,0.25)",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {reviewLoading ? "Submitting..." : "Submit Review"}
+                    </button>
+                  </form>
+                )}
+
+                {/* ── Existing Reviews ── */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
+                  }}
+                >
+                  {reviews.length === 0 ? (
+                    <div
+                      style={{
+                        textAlign: "center",
+                        padding: "40px 20px",
+                        color: "#94A3B8",
+                        fontSize: 13,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 28,
+                          marginBottom: 8,
+                          opacity: 0.5,
+                        }}
+                      >
+                        ★
+                      </div>
+                      Be the first to leave a review!
+                    </div>
+                  ) : (
+                    reviews.map((r, idx) => (
+                      <div
+                        key={r.id || idx}
+                        style={{
+                          padding: "16px 18px",
+                          borderRadius: 12,
+                          background: "#FFFFFF",
+                          border: "1px solid #E2E8F0",
+                          boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
+                        }}
+                      >
+                        {/* Stars */}
+                        <div style={{ marginBottom: 8 }}>
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <span
+                              key={s}
+                              style={{
+                                fontSize: 16,
+                                color:
+                                  s <= (r.rating || 0)
+                                    ? "#F59E0B"
+                                    : "#CBD5E1",
+                              }}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Initials + Verified Badge */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginBottom: 6,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              fontSize: 13,
+                              color: "#0F172A",
+                            }}
+                          >
+                            {r.initials}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "#10B981",
+                              fontWeight: 600,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 3,
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 16,
+                                height: 16,
+                                borderRadius: "50%",
+                                background: "#D1FAE5",
+                                fontSize: 10,
+                                color: "#10B981",
+                              }}
+                            >
+                              ✓
+                            </span>
+                            Verified
+                          </span>
+                        </div>
+
+                        {/* Comment */}
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#334155",
+                            lineHeight: 1.55,
+                            fontStyle: "italic",
+                          }}
+                        >
+                          &ldquo;{r.comment}&rdquo;
+                        </div>
+
+                        {/* Timestamp */}
+                        {r.created_at && (
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#94A3B8",
+                              marginTop: 8,
+                            }}
+                          >
+                            {new Date(r.created_at).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </section>
