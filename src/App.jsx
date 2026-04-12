@@ -1018,15 +1018,7 @@ function App() {
       }}
     >
       <style>{`
-        @keyframes noteShimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes notePulseGlow {
-          0%, 100% { box-shadow: 0 0 0 1px rgba(14,165,233,0.15), 0 4px 12px rgba(14,165,233,0.08), 0 0 20px rgba(14,165,233,0.05); }
-          50% { box-shadow: 0 0 0 2px rgba(14,165,233,0.25), 0 4px 16px rgba(14,165,233,0.15), 0 0 30px rgba(14,165,233,0.1); }
-        }
-        [contenteditable][data-placeholder]:empty::before {
+[contenteditable][data-placeholder]:empty::before {
           content: attr(data-placeholder);
           color: #94A3B8;
           pointer-events: none;
@@ -2522,36 +2514,6 @@ function App() {
                 </div>
               </div>
 
-              {/* ── Clear button ── */}
-              {ownNote && (
-                <button
-                  onClick={() => clearNoteContent()}
-                  style={{
-                    padding: "5px 12px",
-                    borderRadius: 6,
-                    border: "1px solid #E2E8F0",
-                    background: "#FFFFFF",
-                    color: "#94A3B8",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = "#FDA4AF";
-                    e.target.style.color = "#E11D48";
-                    e.target.style.background = "#FFF1F2";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = "#E2E8F0";
-                    e.target.style.color = "#94A3B8";
-                    e.target.style.background = "#FFFFFF";
-                  }}
-                >
-                  Clear
-                </button>
-              )}
             </div>
 
             {/* ── Template buttons ── */}
@@ -2671,11 +2633,6 @@ Discharge Plan:
               <span style={{
                 fontSize: 19, fontWeight: 800, color: "#FFFFFF",
                 letterSpacing: "0.03em",
-                backgroundImage: "linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.6) 40%, #FFFFFF 60%, rgba(255,255,255,0.6) 80%, #FFFFFF 100%)",
-                backgroundSize: "200% auto",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                animation: "noteShimmer 3s linear infinite",
               }}>Clinical Note</span>
             </div>
             {/* ── Formatting Toolbar ── */}
