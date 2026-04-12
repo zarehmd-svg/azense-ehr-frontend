@@ -651,6 +651,7 @@ function App() {
         }}
       >
         <div
+          className="ehr-login-card"
           style={{
             width: 380,
             padding: "40px 36px",
@@ -674,6 +675,7 @@ function App() {
             <img
               src={AzenseLogo}
               alt="AZense logo"
+              className="ehr-login-logo"
               style={{
                 height: 120,
                 width: "auto",
@@ -1005,6 +1007,7 @@ function App() {
   // ───── MAIN APP ─────
   return (
     <div
+      className="ehr-app-wrapper"
       style={{
         minHeight: "100vh",
         padding: "24px 16px",
@@ -1027,6 +1030,7 @@ function App() {
       `}</style>
       {/* ── main card ── */}
       <div
+        className="ehr-main-card"
         style={{
           width: "100%",
           maxWidth: 1400,
@@ -1041,7 +1045,7 @@ function App() {
         {/* Trial banner (hidden in embed mode) */}
         {!EMBED_MODE && isTrial && trialDaysLeft > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{
+            <div className="ehr-trial-banner" style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               padding: "10px 16px", borderRadius: showUpgradePanel ? "12px 12px 0 0" : 12,
               background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
@@ -1077,7 +1081,7 @@ function App() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#F0FDFA" }}>Choose Your Plan</div>
                   <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>Full access to all patients, question banks, and features</div>
                 </div>
-                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                <div className="ehr-upgrade-panel-cards" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
                   {/* Monthly */}
                   <div style={{
                     flex: "1 1 180px", maxWidth: 220, borderRadius: 12, padding: "16px 18px",
@@ -1128,6 +1132,7 @@ function App() {
 
         {/* ── HEADER ── (hidden in embed mode) */}
         {!EMBED_MODE && <header
+          className="ehr-app-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -1142,6 +1147,7 @@ function App() {
             <img
               src={AzenseLogo}
               alt="AZense logo"
+              className="ehr-header-logo"
               style={{
                 height: 80,
                 width: "auto",
@@ -1341,6 +1347,7 @@ function App() {
 
         {/* ── PATIENT SELECTOR ── (hidden in embed mode) */}
         {!EMBED_MODE && <section
+          className="ehr-patient-selector"
           style={{
             marginBottom: 16,
             padding: "16px 18px",
@@ -1525,6 +1532,7 @@ function App() {
           const ac = ASSIGN_COLORS[assign.color];
           return (
             <div
+              className="ehr-assignment-banner"
               style={{
                 marginBottom: 14,
                 padding: "14px 20px",
@@ -1538,6 +1546,7 @@ function App() {
               }}
             >
               <span
+                className="ehr-assignment-icon"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1566,6 +1575,7 @@ function App() {
                   Your Assignment
                 </div>
                 <div
+                  className="ehr-assignment-title"
                   style={{
                     fontSize: 15,
                     fontWeight: 700,
@@ -1601,7 +1611,7 @@ function App() {
               flexWrap: "wrap",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0 }}>
+            <div className="ehr-patient-header-left" style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0 }}>
               <div style={{
                 width: 38, height: 38, borderRadius: 10,
                 background: "linear-gradient(135deg, #0D9488, #14B8A6)",
@@ -1619,7 +1629,7 @@ function App() {
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
+            <div className="ehr-patient-header-right" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
               {ehr?.overview?.admission_date && (
                 <div style={{
                   padding: "4px 10px", borderRadius: 8,
@@ -1698,6 +1708,7 @@ function App() {
         >
           {/* ── EHR content panel ── */}
           <section
+            className="ehr-content-section"
             style={{
               padding: "18px 20px",
               borderRadius: 16,
@@ -1991,7 +2002,7 @@ function App() {
               );
 
               return (
-                <div style={{ padding: "12px 16px" }}>
+                <div className="ehr-meds-section" style={{ padding: "12px 16px" }}>
                   <Section
                     title="Active Scheduled" icon="●" color="#047857" borderColor="#A7F3D0"
                     items={meds.active_scheduled} emptyText="No active scheduled orders"
@@ -2046,7 +2057,7 @@ function App() {
               return (
                 <div>
                   {/* ── Panel tabs (Level 1) ── */}
-                  <div style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 12, padding: "2px 0" }}>
+                  <div className="ehr-lab-panels" style={{ display: "flex", gap: 6, overflowX: "auto", marginBottom: 12, padding: "2px 0" }}>
                     {availablePanels.map((panel) => {
                       const isActive = panel.id === activePanel;
                       const hasAbnormal = (panelMap[panel.id] || []).some((l) => l.flag === "H" || l.flag === "L");
@@ -2117,7 +2128,7 @@ function App() {
                   )}
 
                   {/* ── Lab results table ── */}
-                  <div style={{ overflowX: "auto", width: "100%" }}>
+                  <div className="ehr-lab-table-wrapper" style={{ overflowX: "auto", width: "100%" }}>
                     <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}>
                       <thead>
                         <tr>
@@ -2283,7 +2294,7 @@ function App() {
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Vitals Trends</div>
                   {ehr?.summary?.vitals?.length ? (
-                    <div style={{ overflowX: "auto" }}>
+                    <div className="ehr-vitals-wrapper" style={{ overflowX: "auto" }}>
                       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
                         <thead>
                           <tr style={{ background: "linear-gradient(135deg, #1E3A8A, #2563EB)" }}>
@@ -2333,7 +2344,7 @@ function App() {
 
                 {/* ── RESPIRATORY / LINES ── */}
                 {(ehr?.summary?.respiratory?.length > 0 || ehr?.summary?.lines?.length > 0) && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div className="ehr-summary-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     {ehr.summary.respiratory?.length > 0 && (
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", marginBottom: 8 }}>Respiratory</div>
@@ -2474,6 +2485,7 @@ function App() {
 
           {/* ── TEACHING NOTE AREA ── */}
           <section
+            className="ehr-teaching-section"
             style={{
               padding: "20px 22px",
               borderRadius: 16,
@@ -2518,6 +2530,7 @@ function App() {
 
             {/* ── Template buttons ── */}
             <div
+              className="ehr-template-buttons"
               style={{
                 display: "flex",
                 gap: 8,
@@ -2621,7 +2634,7 @@ Discharge Plan:
             </div>
 
             {/* ── Clinical Note Label ── */}
-            <div style={{
+            <div className="ehr-clinical-banner" style={{
               display: "flex", alignItems: "center", gap: 10,
               padding: "14px 18px",
               background: "linear-gradient(135deg, #0891B2, #0EA5E9, #06B6D4)",
@@ -2629,14 +2642,14 @@ Discharge Plan:
               marginBottom: 0,
               boxShadow: "0 2px 8px rgba(8,145,178,0.25)",
             }}>
-              <span style={{ fontSize: 22 }}>📝</span>
-              <span style={{
+              <span className="ehr-clinical-banner-icon" style={{ fontSize: 22 }}>📝</span>
+              <span className="ehr-clinical-banner-text" style={{
                 fontSize: 19, fontWeight: 800, color: "#FFFFFF",
                 letterSpacing: "0.03em",
               }}>Clinical Note</span>
             </div>
             {/* ── Formatting Toolbar ── */}
-            <div style={{
+            <div className="ehr-format-toolbar" style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "6px 12px",
               background: "linear-gradient(135deg, rgba(14,165,233,0.06), rgba(6,182,212,0.04))",
@@ -2697,6 +2710,7 @@ Discharge Plan:
             }}>
             <div
               ref={noteRef}
+              className="ehr-note-editor"
               contentEditable
               suppressContentEditableWarning
               onInput={syncNote}

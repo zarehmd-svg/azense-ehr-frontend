@@ -79,8 +79,41 @@ body { margin: 0; }
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-/* ── Responsive polish ── */
-@media (max-width: 768px) {
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN — Tablets, Phones, Embedded iframe
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet: max-width 1024px ── */
+@media (max-width: 1024px) {
+  /* Main app wrapper */
+  .ehr-app-wrapper {
+    padding: 16px 10px !important;
+  }
+  .ehr-main-card {
+    padding: 20px 18px 24px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Header */
+  .ehr-app-header {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  .ehr-header-right {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+  .ehr-header-logo {
+    height: 60px !important;
+  }
+
+  /* Patient header bar */
+  .ehr-patient-header {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+
+  /* Top tabs */
   .ehr-top-tabs {
     flex-wrap: nowrap !important;
     overflow-x: auto;
@@ -93,15 +126,165 @@ body { margin: 0; }
   .ehr-top-tabs button {
     flex-shrink: 0;
   }
-  .ehr-card-stack {
+
+  /* Notes layout */
+  .ehr-notes-layout > div:first-child {
+    width: 120px !important;
+  }
+  .ehr-notes-content > div:first-child {
+    width: 160px !important;
+  }
+
+  /* Summary: respiratory/lines grid */
+  .ehr-summary-grid {
     grid-template-columns: 1fr !important;
+  }
+
+  /* Teaching note area */
+  .ehr-teaching-section {
+    padding: 16px 16px !important;
+  }
+
+  /* Template buttons */
+  .ehr-template-buttons button {
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+
+  /* Content section */
+  .ehr-content-section {
+    padding: 14px 16px !important;
+  }
+}
+
+/* ── Phone: max-width 768px ── */
+@media (max-width: 768px) {
+  /* Main wrapper */
+  .ehr-app-wrapper {
+    padding: 8px 4px !important;
+  }
+  .ehr-main-card {
+    padding: 14px 12px 18px !important;
+    border-radius: 12px !important;
+  }
+
+  /* ── App Header ── */
+  .ehr-app-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding-bottom: 14px !important;
+    margin-bottom: 14px !important;
+  }
+  .ehr-header-logo {
+    height: 50px !important;
   }
   .ehr-header-right {
     flex-wrap: wrap;
     gap: 6px !important;
+    width: 100%;
   }
+  .ehr-header-right > * {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center !important;
+    text-align: center;
+  }
+  .ehr-header-right a,
+  .ehr-header-right button,
+  .ehr-header-right div {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+  }
+  .ehr-header-info-text {
+    font-size: 11px !important;
+  }
+  .ehr-header-subtitle {
+    font-size: 11px !important;
+  }
+
+  /* ── Patient Header Bar (sticky) ── */
+  .ehr-patient-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  .ehr-patient-header-left {
+    width: 100%;
+  }
+  .ehr-patient-header-left > div:last-child > div:last-child {
+    max-width: 100% !important;
+    white-space: normal !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+  .ehr-patient-header-right {
+    width: 100%;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .ehr-patient-header-right > div {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* ── Patient selector ── */
+  .ehr-patient-selector {
+    padding: 12px 12px !important;
+    margin-bottom: 12px !important;
+  }
+  .ehr-patient-selector button {
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+  }
+
+  /* ── Note Assignment Banner ── */
+  .ehr-assignment-banner {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  .ehr-assignment-banner .ehr-assignment-icon {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 16px !important;
+  }
+  .ehr-assignment-banner .ehr-assignment-title {
+    font-size: 13px !important;
+  }
+
+  /* ── Top Tabs ── */
+  .ehr-top-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 4px !important;
+  }
+  .ehr-top-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .ehr-top-tabs button {
+    flex-shrink: 0;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    min-height: 44px;
+  }
+
+  /* ── Content Section ── */
+  .ehr-content-section {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+    min-height: 200px !important;
+  }
+
+  /* ── Notes Tab ── */
   .ehr-notes-layout {
     flex-direction: column !important;
+    gap: 10px !important;
   }
   .ehr-notes-layout > div:first-child {
     width: 100% !important;
@@ -112,6 +295,8 @@ body { margin: 0; }
   .ehr-notes-layout > div:first-child button {
     border-left: none !important;
     border-bottom: 2px solid transparent;
+    padding: 6px 10px !important;
+    min-height: 44px;
   }
   .ehr-notes-content {
     flex-direction: column !important;
@@ -119,11 +304,182 @@ body { margin: 0; }
   }
   .ehr-notes-content > div:first-child {
     width: 100% !important;
-    max-height: 200px;
+    max-height: 180px;
+  }
+  .ehr-notes-content > div:last-child {
+    min-height: 300px;
+    font-size: 13px !important;
+    padding: 14px 14px !important;
+  }
+
+  /* ── Labs Tab ── */
+  .ehr-lab-panels {
+    gap: 4px !important;
+  }
+  .ehr-lab-panels button {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    min-height: 44px;
+  }
+  .ehr-lab-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+    padding: 0 10px;
+  }
+  .ehr-lab-table-wrapper table {
+    min-width: 500px;
+    font-size: 12px !important;
+  }
+  .ehr-lab-table-wrapper th,
+  .ehr-lab-table-wrapper td {
+    padding: 7px 8px !important;
+  }
+
+  /* ── Summary Tab ── */
+  .ehr-vitals-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+    padding: 0 10px;
+  }
+  .ehr-vitals-wrapper table {
+    min-width: 580px;
+    font-size: 11px !important;
+  }
+  .ehr-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Teaching Note Area ── */
+  .ehr-teaching-section {
+    padding: 14px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Template buttons */
+  .ehr-template-buttons {
+    gap: 6px !important;
+  }
+  .ehr-template-buttons button {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    flex: 1 1 auto;
+    min-height: 44px;
+    justify-content: center !important;
+  }
+
+  /* Clinical Note banner */
+  .ehr-clinical-banner {
+    padding: 10px 14px !important;
+  }
+  .ehr-clinical-banner-icon {
+    font-size: 18px !important;
+  }
+  .ehr-clinical-banner-text {
+    font-size: 16px !important;
+  }
+
+  /* Formatting toolbar */
+  .ehr-format-toolbar {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    padding: 5px 8px !important;
+  }
+  .ehr-format-toolbar button {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 4px 8px !important;
+  }
+
+  /* Rich text editor */
+  .ehr-note-editor {
+    min-height: 300px !important;
+    padding: 12px 12px !important;
+    font-size: 14px !important;
+  }
+
+  /* ── Medications Tab ── */
+  .ehr-meds-section {
+    padding: 10px 10px !important;
+  }
+
+  /* ── Imaging / EKGs / Procedures cards ── */
+  .ehr-card-hover {
+    padding: 12px 12px 12px 16px !important;
+  }
+
+  /* ── Login screen ── */
+  .ehr-login-card {
+    width: calc(100vw - 32px) !important;
+    max-width: 380px;
+    padding: 28px 20px !important;
+  }
+  .ehr-login-logo {
+    height: 90px !important;
+  }
+
+  /* ── Modals ── */
+  .ehr-modal-content {
+    width: calc(100vw - 24px) !important;
+    max-height: 90vh !important;
+    padding: 20px 16px !important;
+  }
+
+  /* ── Trial banner ── */
+  .ehr-trial-banner {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+  .ehr-trial-banner > div {
+    font-size: 11px !important;
+  }
+  .ehr-upgrade-panel-cards {
+    flex-direction: column !important;
+  }
+  .ehr-upgrade-panel-cards > div {
+    max-width: 100% !important;
+  }
+
+  /* ── General text sizing ── */
+  .ehr-main-card {
+    font-size: 13px;
+  }
+
+  /* ── Card stack grid ── */
+  .ehr-card-stack {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Prevent horizontal page scroll */
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+/* ── Very small phones: max-width 480px ── */
+@media (max-width: 480px) {
+  .ehr-app-wrapper {
+    padding: 4px 2px !important;
+  }
+  .ehr-main-card {
+    padding: 10px 8px 14px !important;
+    border-radius: 8px !important;
+  }
+  .ehr-top-tabs button {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
   }
   .ehr-patient-header {
+    padding: 8px 10px !important;
+  }
+  .ehr-template-buttons {
     flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
+  }
+  .ehr-template-buttons button {
+    width: 100% !important;
+  }
+  .ehr-clinical-banner-text {
+    font-size: 14px !important;
   }
 }
