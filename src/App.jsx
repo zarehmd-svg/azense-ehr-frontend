@@ -983,6 +983,16 @@ function App() {
         alignItems: "flex-start",
       }}
     >
+      <style>{`
+        @keyframes noteShimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes notePulseGlow {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(14,165,233,0.15), 0 4px 12px rgba(14,165,233,0.08), 0 0 20px rgba(14,165,233,0.05); }
+          50% { box-shadow: 0 0 0 2px rgba(14,165,233,0.25), 0 4px 16px rgba(14,165,233,0.15), 0 0 30px rgba(14,165,233,0.1); }
+        }
+      `}</style>
       {/* ── main card ── */}
       <div
         style={{
@@ -2610,19 +2620,32 @@ Discharge Plan:
 
             {/* ── Clinical Note Label ── */}
             <div style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "10px 14px",
-              background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(20,184,166,0.08))",
-              borderRadius: 10,
-              marginBottom: 10,
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "14px 18px",
+              background: "linear-gradient(135deg, #0891B2, #0EA5E9, #06B6D4)",
+              borderRadius: "12px 12px 0 0",
+              marginBottom: 0,
+              boxShadow: "0 2px 8px rgba(8,145,178,0.25)",
             }}>
-              <span style={{ fontSize: 16 }}>📝</span>
+              <span style={{ fontSize: 22 }}>📝</span>
               <span style={{
-                fontSize: 13, fontWeight: 700, color: "#0369A1",
-                letterSpacing: "0.02em",
+                fontSize: 19, fontWeight: 800, color: "#FFFFFF",
+                letterSpacing: "0.03em",
+                backgroundImage: "linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.6) 40%, #FFFFFF 60%, rgba(255,255,255,0.6) 80%, #FFFFFF 100%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                animation: "noteShimmer 3s linear infinite",
               }}>Clinical Note</span>
             </div>
             {/* ── Textarea ── */}
+            <div style={{
+              borderRadius: "0 0 12px 12px",
+              padding: 2,
+              background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(6,182,212,0.06))",
+              boxShadow: "0 0 24px rgba(14,165,233,0.06)",
+              animation: "notePulseGlow 2.5s ease-in-out infinite",
+            }}>
             <textarea
               rows={16}
               value={ownNote}
@@ -2630,28 +2653,33 @@ Discharge Plan:
               placeholder="📝 Write your clinical note here..."
               style={{
                 width: "100%",
-                borderRadius: 12,
+                borderRadius: "0 0 10px 10px",
                 border: "1px solid rgba(226,232,240,0.8)",
-                borderLeft: "4px solid #0EA5E9",
+                borderLeft: "6px solid #0EA5E9",
+                borderTop: "none",
                 padding: "14px 16px",
-                fontSize: 13,
+                fontSize: 14,
                 lineHeight: 1.6,
                 fontFamily:
                   "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
                 outline: "none",
-                background: "#FFFFFF",
+                background: "rgba(14,165,233,0.04)",
                 color: "#0F172A",
                 resize: "vertical",
                 minHeight: 260,
-                transition: "border-color 0.15s ease",
+                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                boxSizing: "border-box",
               }}
-              onFocus={(e) =>
-                (e.target.style.borderColor = "rgba(14,165,233,0.5)")
-              }
-              onBlur={(e) =>
-                (e.target.style.borderColor = "rgba(226,232,240,0.8)")
-              }
+              onFocus={(e) => {
+                e.target.style.borderColor = "rgba(14,165,233,0.5)";
+                e.target.style.boxShadow = "inset 0 0 0 1px rgba(14,165,233,0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "rgba(226,232,240,0.8)";
+                e.target.style.boxShadow = "none";
+              }}
             />
+            </div>
           </section>
         </div>
         {/* LLC Footer */}
