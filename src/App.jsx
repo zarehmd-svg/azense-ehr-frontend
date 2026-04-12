@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import AzenseLogo from "./assets/Azense-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -302,6 +302,8 @@ function App() {
   const [activeNoteType, setActiveNoteType] = useState("hp");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [ownNote, setOwnNote] = useState("");
+  const noteRef = useRef(null);
+  const [activeFontSize, setActiveFontSize] = useState("3");
   const [selectedLabPanel, setSelectedLabPanel] = useState(null);
   const [selectedLabDay, setSelectedLabDay] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -523,7 +525,7 @@ function App() {
         const json = await res.json();
         setEhr(json);
         setSelectedNoteId(null);
-        setOwnNote("");
+        clearNoteContent();
         setSelectedLabPanel(null);
         setSelectedLabDay(null);
       } catch (err) {
@@ -544,6 +546,38 @@ function App() {
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   });
+
+  /* ── Rich-text editor helpers ── */
+  const syncNote = useCallback(() => {
+    if (noteRef.current) {
+      setOwnNote(noteRef.current.innerText || "");
+    }
+  }, []);
+
+  const applyBold = useCallback(() => {
+    document.execCommand("bold", false, null);
+    noteRef.current?.focus();
+  }, []);
+
+  const applyFontSize = useCallback((size) => {
+    document.execCommand("fontSize", false, size);
+    setActiveFontSize(size);
+    noteRef.current?.focus();
+  }, []);
+
+  const setNoteContent = useCallback((text) => {
+    setOwnNote(text);
+    if (noteRef.current) {
+      noteRef.current.innerText = text;
+    }
+  }, []);
+
+  const clearNoteContent = useCallback(() => {
+    setOwnNote("");
+    if (noteRef.current) {
+      noteRef.current.innerHTML = "";
+    }
+  }, []);
 
   /* ── fetch reviews ── */
   const fetchReviews = async () => {
@@ -992,6 +1026,12 @@ function App() {
           0%, 100% { box-shadow: 0 0 0 1px rgba(14,165,233,0.15), 0 4px 12px rgba(14,165,233,0.08), 0 0 20px rgba(14,165,233,0.05); }
           50% { box-shadow: 0 0 0 2px rgba(14,165,233,0.25), 0 4px 16px rgba(14,165,233,0.15), 0 0 30px rgba(14,165,233,0.1); }
         }
+        [contenteditable][data-placeholder]:empty::before {
+          content: attr(data-placeholder);
+          color: #94A3B8;
+          pointer-events: none;
+          display: block;
+        }
       `}</style>
       {/* ── main card ── */}
       <div
@@ -1271,7 +1311,7 @@ function App() {
                 setAllowedPatients(null);
                 setDisplayName("");
                 setEhr(null);
-                setOwnNote("");
+                clearNoteContent();
               }}
               style={{
                 display: "flex",
@@ -2485,7 +2525,7 @@ function App() {
               {/* ── Clear button ── */}
               {ownNote && (
                 <button
-                  onClick={() => setOwnNote("")}
+                  onClick={() => clearNoteContent()}
                   style={{
                     padding: "5px 12px",
                     borderRadius: 6,
@@ -2584,7 +2624,7 @@ Discharge Plan:
               ].map((tmpl) => (
                 <button
                   key={tmpl.id}
-                  onClick={() => setOwnNote(tmpl.template)}
+                  onClick={() => setNoteContent(tmpl.template)}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -2638,7 +2678,59 @@ Discharge Plan:
                 animation: "noteShimmer 3s linear infinite",
               }}>Clinical Note</span>
             </div>
-            {/* ── Textarea ── */}
+            {/* ── Formatting Toolbar ── */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "6px 12px",
+              background: "linear-gradient(135deg, rgba(14,165,233,0.06), rgba(6,182,212,0.04))",
+              borderLeft: "6px solid #0EA5E9",
+              borderRight: "1px solid rgba(226,232,240,0.8)",
+              borderBottom: "1px solid rgba(226,232,240,0.5)",
+            }}>
+              <button
+                onMouseDown={(e) => { e.preventDefault(); applyBold(); }}
+                title="Bold"
+                style={{
+                  padding: "4px 10px", borderRadius: 6,
+                  border: "1px solid rgba(14,165,233,0.25)",
+                  background: "rgba(255,255,255,0.9)",
+                  color: "#0F172A", fontSize: 13, fontWeight: 800,
+                  cursor: "pointer", transition: "all 0.15s",
+                  lineHeight: 1.4,
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(14,165,233,0.12)"; e.currentTarget.style.borderColor = "#0EA5E9"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.borderColor = "rgba(14,165,233,0.25)"; }}
+              >B</button>
+              <span style={{ width: 1, height: 20, background: "rgba(14,165,233,0.15)", margin: "0 4px" }} />
+              <span style={{ fontSize: 11, color: "#64748B", fontWeight: 600, marginRight: 2 }}>Size:</span>
+              {[
+                { label: "S", size: "2", title: "Small" },
+                { label: "M", size: "3", title: "Medium" },
+                { label: "L", size: "5", title: "Large" },
+                { label: "XL", size: "7", title: "Extra Large" },
+              ].map((s) => (
+                <button
+                  key={s.size}
+                  onMouseDown={(e) => { e.preventDefault(); applyFontSize(s.size); }}
+                  title={s.title}
+                  style={{
+                    padding: "4px 8px", borderRadius: 6,
+                    border: activeFontSize === s.size ? "1px solid #0EA5E9" : "1px solid rgba(14,165,233,0.2)",
+                    background: activeFontSize === s.size ? "rgba(14,165,233,0.1)" : "rgba(255,255,255,0.9)",
+                    color: activeFontSize === s.size ? "#0284C7" : "#475569",
+                    fontSize: 11, fontWeight: 600,
+                    cursor: "pointer", transition: "all 0.15s",
+                    lineHeight: 1.4,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(14,165,233,0.12)"; e.currentTarget.style.borderColor = "#0EA5E9"; }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = activeFontSize === s.size ? "rgba(14,165,233,0.1)" : "rgba(255,255,255,0.9)";
+                    e.currentTarget.style.borderColor = activeFontSize === s.size ? "#0EA5E9" : "rgba(14,165,233,0.2)";
+                  }}
+                >{s.label}</button>
+              ))}
+            </div>
+            {/* ── Rich Text Editor ── */}
             <div style={{
               borderRadius: "0 0 12px 12px",
               padding: 2,
@@ -2646,11 +2738,12 @@ Discharge Plan:
               boxShadow: "0 0 24px rgba(14,165,233,0.06)",
               animation: "notePulseGlow 2.5s ease-in-out infinite",
             }}>
-            <textarea
-              rows={16}
-              value={ownNote}
-              onChange={(e) => setOwnNote(e.target.value)}
-              placeholder="📝 Write your clinical note here..."
+            <div
+              ref={noteRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={syncNote}
+              data-placeholder="📝 Write your clinical note here..."
               style={{
                 width: "100%",
                 borderRadius: "0 0 10px 10px",
@@ -2665,10 +2758,13 @@ Discharge Plan:
                 outline: "none",
                 background: "rgba(14,165,233,0.04)",
                 color: "#0F172A",
-                resize: "vertical",
                 minHeight: 260,
+                overflowY: "auto",
+                maxHeight: 500,
                 transition: "border-color 0.2s ease, box-shadow 0.2s ease",
                 boxSizing: "border-box",
+                whiteSpace: "pre-wrap",
+                wordWrap: "break-word",
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "rgba(14,165,233,0.5)";
