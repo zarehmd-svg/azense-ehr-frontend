@@ -2608,16 +2608,31 @@ Discharge Plan:
               ))}
             </div>
 
+            {/* ── Clinical Note Label ── */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 14px",
+              background: "linear-gradient(135deg, rgba(14,165,233,0.08), rgba(20,184,166,0.08))",
+              borderRadius: 10,
+              marginBottom: 10,
+            }}>
+              <span style={{ fontSize: 16 }}>📝</span>
+              <span style={{
+                fontSize: 13, fontWeight: 700, color: "#0369A1",
+                letterSpacing: "0.02em",
+              }}>Clinical Note</span>
+            </div>
             {/* ── Textarea ── */}
             <textarea
               rows={16}
               value={ownNote}
               onChange={(e) => setOwnNote(e.target.value)}
-              placeholder="Select a template above or start writing your note here…"
+              placeholder="📝 Write your clinical note here..."
               style={{
                 width: "100%",
                 borderRadius: 12,
                 border: "1px solid rgba(226,232,240,0.8)",
+                borderLeft: "4px solid #0EA5E9",
                 padding: "14px 16px",
                 fontSize: 13,
                 lineHeight: 1.6,
